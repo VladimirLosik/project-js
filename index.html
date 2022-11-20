@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <link href="style.css" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/aa7a31f950.js" crossorigin="anonymous"></script>
     <style>
@@ -58,7 +59,7 @@
                             <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <div class="dropdown-menu p-2 flex-column" aria-labelledby="dropdownMenuItem1">
+                            <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
                                 <button type="button" class="btn btn-success w-100 complete">Complete</button>
                                 <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
                                 <button type="button" class="btn btn-danger w-100 delete">Delete</button>
@@ -81,7 +82,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Add task</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close">
-                        <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true" class="closeX">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -98,18 +99,47 @@
                                 <input type="text" class="form-control" name="inputText" id="inputText" placeholder="Text" required>
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="inputText" class="col-sm-2 col-form-label">Color</label>
-                            <div class="col-sm-10">
-                                <div class="btn-group mr-2" role="group" aria-label="First group" id="colors">
-                                    <button type="button" id="red" class="btn btn-danger">Red</button>
-                                    <button type="button" id="orange" class="btn btn-warning">Orange</button>
-                                    <button type="button" id="green" class="btn btn-success">Green</button>
-                                    <button type="button" id="turquoise" class="btn btn-info">Turquoise</button>
-                                    <button type="button" id="blue" class="btn btn-primary">Blue</button>
+                        <fieldset class="form-group" name="color">
+                            <div class="row">
+                                <legend class="col-form-label col-sm-2 pt-0">Color</legend>
+                                <div class="col-sm-10" id="colors">
+                                    <div class="first-line">
+                                        <span class="color-check red">
+                                            <input class="form-check-input color-radio" type="radio" name="colors" id="red" value="red" required>
+                                            <label class="form-check-label color-label" for="red">
+                                                Red
+                                            </label>
+                                        </span>
+                                        <span class="color-check orange">
+                                            <input class="form-check-input color-radio" type="radio" name="colors" id="orange" value="orange" required>
+                                            <label class="form-check-label color-label" for="orange">
+                                                Orange
+                                            </label>
+                                        </span>
+                                        <span class="color-check green">
+                                            <input class="form-check-input color-radio" type="radio" name="colors" id="green" value="green" required>
+                                            <label class="form-check-label color-label" for="green">
+                                                Green
+                                            </label>
+                                        </span>
+                                    </div>
+                                    <div class="second-line">
+                                        <span class="color-check turquoise">
+                                            <input class="form-check-input color-radio" type="radio" name="colors" id="turquoise" value="turquoise" required>
+                                            <label class="form-check-label color-label" for="turquoise">
+                                                Turquoise
+                                            </label>
+                                        </span>
+                                        <span class="color-check blue">
+                                            <input class="form-check-input color-radio" type="radio" name="colors" id="blue" value="blue" required>
+                                            <label class="form-check-label color-label" for="blue">
+                                                Blue
+                                            </label>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </fieldset>
                         <fieldset class="form-group" name="priority">
                             <div class="row">
                                 <legend class="col-form-label col-sm-2 pt-0">Priority</legend>

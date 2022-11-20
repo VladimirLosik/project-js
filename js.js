@@ -1,3 +1,11 @@
+
+// функция для загрузки информации из localStorage
+getStorageElements();
+
+if (!localStorage.getItem('pageStorage')) {
+  setStorageElements();
+}
+
 // блок активных тасков и блок формы
 let toDoBlock = document.querySelector('#currentTasks');
 let form = document.querySelector('#form1');
@@ -21,10 +29,6 @@ addDeleteButtomListener();
 // счётчики количества тасков в разных блоках 
 toDoCounter();
 completedCounter();
-
-
-// функция для загрузки информации из localStorage
-// getStorageElements();
 
 // переменная хранит информацию о том, какой именно таск редактируется 
 let editTask;
@@ -160,20 +164,21 @@ form.addEventListener('submit', (e) => {
 
     //===========
     // блок для очистки данных полей после отправки формы
-    let inputTitle = form.querySelector('#inputTitle');
-    let inputText = form.querySelector('#inputText');
+    // let inputTitle = form.querySelector('#inputTitle');
+    // let inputText = form.querySelector('#inputText');
 
-    let lowPriority = form.querySelector('.low');
-    let mediumPriority = form.querySelector('.medium');
-    let highPriority = form.querySelector('.high');
+    // let lowPriority = form.querySelector('.low');
+    // let mediumPriority = form.querySelector('.medium');
+    // let highPriority = form.querySelector('.high');
 
 
-    inputTitle.removeAttribute('value');
-    inputText.removeAttribute('value');
+    // inputTitle.removeAttribute('value');
+    // inputText.removeAttribute('value');
 
-    lowPriority.removeAttribute('checked');
-    mediumPriority.removeAttribute('checked');
-    highPriority.removeAttribute('checked');
+    // lowPriority.removeAttribute('checked');
+    // mediumPriority.removeAttribute('checked');
+    // highPriority.removeAttribute('checked');
+    form.reset();
 
     // отключение "рычага" редактирования, чтобы следующий вызов модального окна шёл по ветке создания таска (если только
     // не будет нажата кнопка edit, тогда "рычаг" опять включится
@@ -318,13 +323,14 @@ form.addEventListener('submit', (e) => {
 
       // блок, создающий кнопки 
       let dropdownButton = document.createElement('button');
+
       dropdownButton.classList.add('btn', 'btn-secondary', 'h-100');
 
       dropdownButton.setAttribute('type', 'button');
       dropdownButton.setAttribute('id', 'dropdownMenuItem1');
       dropdownButton.setAttribute('data-toggle', 'dropdown');
       dropdownButton.setAttribute('aria-haspopup', 'true');
-      dropdownButton.setAttribute('aria-expanded', 'true');
+      dropdownButton.setAttribute('aria-expanded', 'false');
 
       dropdown.append(dropdownButton);
 
@@ -337,7 +343,7 @@ form.addEventListener('submit', (e) => {
       //=========================================================
 
       let dropdownMenu = document.createElement('div');
-      dropdownMenu.classList.add('dropdown-menu', 'p-2', 'flex-column');
+      dropdownMenu.classList.add('dropdown-menu', 'p-2', 'flex-column', 'btn-block');
 
       dropdownMenu.setAttribute('aria-labelledby', 'dropdownMenuItem1');
       dropdownMenu.setAttribute('style', 'position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-162px, 0px, 0px);');
@@ -392,25 +398,28 @@ form.addEventListener('submit', (e) => {
 
   //=========================================================
   // блок для очистки данных полей после отправки формы
-  let inputTitle = form.querySelector('#inputTitle');
-  let inputText = form.querySelector('#inputText');
+  // let inputTitle = form.querySelector('#inputTitle');
+  // let inputText = form.querySelector('#inputText');
 
-  let lowPriority = form.querySelector('.low');
-  let mediumPriority = form.querySelector('.medium');
-  let highPriority = form.querySelector('.high');
+  // let lowPriority = form.querySelector('.low');
+  // let mediumPriority = form.querySelector('.medium');
+  // let highPriority = form.querySelector('.high');
 
 
-  inputTitle.setAttribute('value', '');
-  inputText.setAttribute('value', '');
+  // inputTitle.setAttribute('value', '');
+  // inputText.setAttribute('value', '');
 
-  lowPriority.removeAttribute('checked');
-  mediumPriority.removeAttribute('checked');
-  highPriority.removeAttribute('checked');
-
+  // lowPriority.removeAttribute('checked');
+  // mediumPriority.removeAttribute('checked');
+  // highPriority.removeAttribute('checked');
+  form.reset();
   
   color = '';
   if (theme == 'dark') document.body.style.backgroundColor = '#111111';
   editToggle = false;
+
+  setStorageElements();
+  // getStorageElements();
 
   addCompleteButtomListener();
   addEditButtomListener();
@@ -442,6 +451,40 @@ lightButton.addEventListener('click', () => {
   if (theme == 'light') return;
 
   // блок стабильных видоизменений
+  let modalContent = document.querySelector('.modal-content');
+  modalContent.classList.add('light-modal');
+  modalContent.classList.remove('dark-modal');
+
+  let textFields = document.querySelectorAll('.form-control');
+  textFields.forEach(function(field) {
+    field.classList.remove('dark-field');
+  })
+
+  let closeX = document.querySelector('.closeX');
+  closeX.classList.remove('dark-x');
+
+
+  let redBtn = document.querySelector('.dark-red');
+  redBtn.classList.add('red');
+  redBtn.classList.remove('dark-red');
+
+  let orangeBtn = document.querySelector('.dark-orange');
+  orangeBtn.classList.add('orange');
+  orangeBtn.classList.remove('dark-orange');
+
+  let greenBtn = document.querySelector('.dark-green');
+  greenBtn.classList.add('green');
+  greenBtn.classList.remove('dark-green');
+
+  let turquoiseBtn = document.querySelector('.dark-turquoise');
+  turquoiseBtn.classList.add('turquoise');
+  turquoiseBtn.classList.remove('dark-turquoise');
+
+  let blueBtn = document.querySelector('.dark-blue');
+  blueBtn.classList.add('blue');
+  blueBtn.classList.remove('dark-blue');
+
+
   document.body.style.backgroundColor = '#fff';
 
   container.style.background = '#fff';
@@ -481,6 +524,9 @@ lightButton.addEventListener('click', () => {
   }
 
   theme = 'light';
+
+  setStorageElements();
+  // getStorageElements();
 });
 
 //===========
@@ -492,6 +538,40 @@ darkButton.addEventListener('click', () => {
   if (theme == 'dark') return;
 
   // блок стабильных видоизменений
+  let modalContent = document.querySelector('.modal-content');
+  modalContent.classList.remove('light-modal');
+  modalContent.classList.add('dark-modal');
+
+  let textFields = document.querySelectorAll('.form-control');
+  textFields.forEach(function(field) {
+    field.classList.add('dark-field');
+  })
+
+  let closeX = document.querySelector('.closeX');
+  closeX.classList.add('dark-x');
+  
+
+  let redBtn = document.querySelector('.red');
+  redBtn.classList.add('dark-red');
+  redBtn.classList.remove('red');
+
+  let orangeBtn = document.querySelector('.orange');
+  orangeBtn.classList.add('dark-orange');
+  orangeBtn.classList.remove('orange');
+
+  let greenBtn = document.querySelector('.green');
+  greenBtn.classList.add('dark-green');
+  greenBtn.classList.remove('green');
+
+  let turquoiseBtn = document.querySelector('.turquoise');
+  turquoiseBtn.classList.add('dark-turquoise');
+  turquoiseBtn.classList.remove('turquoise');
+
+  let blueBtn = document.querySelector('.blue');
+  blueBtn.classList.add('dark-blue');
+  blueBtn.classList.remove('blue');
+
+
   document.body.style.backgroundColor = '#111111';
 
   container.style.backgroundColor = '#111111';
@@ -532,6 +612,9 @@ darkButton.addEventListener('click', () => {
   }
 
   theme = 'dark';
+
+  setStorageElements();
+  // getStorageElements();
 });
 
 //=========================================================
@@ -621,6 +704,9 @@ upButton.addEventListener('click', () => {
       compParent.appendChild(node)
     })
   }
+
+  setStorageElements();
+  // getStorageElements();
 })
   
 //========================
@@ -710,6 +796,9 @@ downButton.addEventListener('click', () => {
       compParent.appendChild(node)
     })
   }
+
+  setStorageElements();
+  // getStorageElements();
 })
 
 //=========================================================
@@ -734,10 +823,19 @@ function addCompleteButtomListener() {
 
     btn.addEventListener('click', () => {
       let task = btn.closest(".task");
+
+      let btnsBlock = task.querySelector('.btn-block');
+      btnsBlock.classList.remove('show');
+
+      btn.nextElementSibling.remove();
+      btn.remove();
+
       let completedBlock = document.querySelector('#completedTasks');
 
       task.classList.add('completed');
       completedBlock.appendChild(task);
+
+      setStorageElements();
 
       toDoCounter();
       completedCounter();
@@ -753,6 +851,7 @@ function addEditButtomListener() {
   editButton.forEach(function(btn) {
 
     btn.addEventListener('click', () => {
+
       let form = document.querySelector('#form1');
       editTask = btn.closest(".task");
 
@@ -824,6 +923,8 @@ function addDeleteButtomListener() {
       let task = btn.closest(".task");
       task.remove();
 
+      setStorageElements();
+
       toDoCounter();
       completedCounter();
     });
@@ -851,23 +952,38 @@ function completedCounter() {
 }
 
 //=========================================================
-// localStorage
 
-// function getStorageElements() {
+let colorBtns = document.querySelectorAll('.color-check');
 
-//   if (!localStorage.getItem('pageStorage')) return;
+colorBtns.forEach(function(btn) {
 
-//   let container = document.querySelector('#container');
-//   container.outerHTML = localStorage.getItem('pageStorage');
-// }
+  btn.addEventListener('click', () => {
+    let radio = btn.querySelector('input');
+    radio.setAttribute('checked','');
+  });
+})
+
+//=========================================================
+localStorage
+
+function getStorageElements() {
+
+  if (!localStorage.getItem('pageStorage')) return;
+
+  let container = document.querySelector('#container');
+  container.innerHTML = '';
+  container.insertAdjacentHTML('beforeend', localStorage.getItem('pageStorage'));
+}
 
 
-// window.addEventListener('unload', () => {
-//   localStorage.clear();
+window.addEventListener('unload', setStorageElements())
 
-//   let pageStorage = document.querySelector('#container');
-//   localStorage.setItem('pageStorage', pageStorage.outerHTML);
-// })
+function setStorageElements() {
+  localStorage.clear();
+
+  let pageStorage = document.querySelector('#container');
+  localStorage.setItem('pageStorage', pageStorage.innerHTML);
+}
 
 
 
