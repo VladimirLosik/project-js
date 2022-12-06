@@ -1,11 +1,3 @@
-
-// функция для загрузки информации из localStorage
-getStorageElements();
-
-if (!localStorage.getItem('pageStorage')) {
-  setStorageElements();
-}
-
 // блок активных тасков и блок формы
 let toDoBlock = document.querySelector('#currentTasks');
 let form = document.querySelector('#form1');
@@ -13,6 +5,14 @@ let form = document.querySelector('#form1');
 // рычаг для переключения поведения результатов формы при отправки, когда он включен, элемент редактируется, когда выключен, создаётся новый
 // включение происходит по нажатию одной из кнопок Edit
 let editToggle = false;
+
+let editTime = '';
+let editColor = '';
+
+
+// функция для загрузки информации из localStorage
+getStorageElements();
+
 
 // объекты для хранения тасов перед помещением в 
 // let storageToDo = {};
@@ -35,7 +35,57 @@ let editTask;
 
 //=========================================================
 // переменная с информацией о теме, изначально светлая
-let theme = 'light';
+let theme;
+
+if (localStorage.getItem('theme')) {
+  theme = localStorage.getItem('theme')
+} else {
+  theme = 'light';
+}
+
+if (theme == 'dark') {
+  let modalContent = document.querySelector('.modal-content');
+  modalContent.classList.remove('light-modal');
+  modalContent.classList.add('dark-modal');
+
+  let textFields = document.querySelectorAll('.form-control');
+  textFields.forEach(function(field) {
+    field.classList.add('dark-field');
+  })
+
+  let closeX = document.querySelector('.closeX');
+  closeX.classList.add('dark-x');
+  
+
+  let redBtn = document.querySelector('.red');
+  redBtn.classList.add('dark-red');
+  redBtn.classList.remove('red');
+
+  let orangeBtn = document.querySelector('.orange');
+  orangeBtn.classList.add('dark-orange');
+  orangeBtn.classList.remove('orange');
+
+  let greenBtn = document.querySelector('.green');
+  greenBtn.classList.add('dark-green');
+  greenBtn.classList.remove('green');
+
+  let turquoiseBtn = document.querySelector('.turquoise');
+  turquoiseBtn.classList.add('dark-turquoise');
+  turquoiseBtn.classList.remove('turquoise');
+
+  let blueBtn = document.querySelector('.blue');
+  blueBtn.classList.add('dark-blue');
+  blueBtn.classList.remove('blue');
+
+
+  document.body.style.backgroundColor = '#111111';
+
+  container.style.backgroundColor = '#111111';
+  container.style.color = '#e5e5e5';
+
+  navbar.classList.remove("bg-light");
+  navbar.style.backgroundColor = '#353535';
+}
 
 // объект с цветами 
 let colors = {
@@ -127,6 +177,8 @@ High.onchange = function () {
 
 
 // обработчик нажатия submit модального окна (имеет ветку создания таска и редактирования)
+let editTaskData = '';
+
 form.addEventListener('submit', (e) => {
   e.preventDefault();
 
@@ -135,18 +187,35 @@ form.addEventListener('submit', (e) => {
   let modalBackdrop = document.querySelector('.modal-backdrop');
   let modal = document.querySelector('.modal');
 
+  let date = new Date();
+
   //=========================================================
   // ответвление для редактирования, а не создания таска
 
   if (editToggle == true) {
-    
-    // редактирование тайтла
-    let title = editTask.querySelector('.title');
-    title.textContent = formData.get('inputTitle');
 
-    // редактирование текста
-    let text = editTask.querySelector('.text');
-    text.textContent = formData.get('inputText');
+    // editTask.innerHTML = `
+    // <div class="w-100 mr-2">
+    //   <div class="d-flex w-100 justify-content-between">
+    //       <h5 class="title mb-1">${formData.get('inputTitle')}</h5>
+    //       <div>
+    //           <small class="priority mr-2">${priorityValue} priority</small>
+    //           <small class="time">${editTime}</small>
+    //       </div>
+
+    //   </div>
+    //   <p class="text mb-1 w-100">${formData.get('inputText')}</p>
+    // </div>
+    // <div class="dropdown m-2 dropleft">
+    //   <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    //       <i class="fas fa-ellipsis-v"></i>
+    //   </button>
+    //   <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+    //       <button type="button" class="btn btn-success w-100 complete">Complete</button>
+    //       <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
+    //       <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+    //   </div>
+    // </div>`;
 
     // редактирование цвета:
     // определение текущей темы страницы
@@ -155,34 +224,87 @@ form.addEventListener('submit', (e) => {
     
     // добавление цвета к элементу
     if (color) {
-      editTask.setAttribute('style', `border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;`);
-    }
+      editTaskData = `
+      <li class="task list-group-item d-flex w-100 mb-2" style="border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;">
+        <div class="w-100 mr-2">
+          <div class="d-flex w-100 justify-content-between">
+              <h5 class="title mb-1">${formData.get('inputTitle')}</h5>
+              <div>
+                  <small class="priority mr-2">${priorityValue} priority</small>
+                  <small class="time">${editTime}</small>
+              </div>
 
-    // редактирование приоритета
-    let priorityText = editTask.querySelector('.priority')
-    priorityText.innerHTML = `${priorityValue} priority`;
+          </div>
+          <p class="text mb-1 w-100">${formData.get('inputText')}</p>
+        </div>
+        <div class="dropdown m-2 dropleft">
+          <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+              <button type="button" class="btn btn-success w-100 complete">Complete</button>
+              <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
+              <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+          </div>
+        </div>
+      </li>`;
+      // editTask.setAttribute('style', `border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;`);
+    } else {
+      editTaskData = `
+      <li class="task list-group-item d-flex w-100 mb-2" style="${editColor}">
+        <div class="w-100 mr-2">
+          <div class="d-flex w-100 justify-content-between">
+              <h5 class="title mb-1">${formData.get('inputTitle')}</h5>
+              <div>
+                  <small class="priority mr-2">${priorityValue} priority</small>
+                  <small class="time">${editTime}</small>
+              </div>
+
+          </div>
+          <p class="text mb-1 w-100">${formData.get('inputText')}</p>
+        </div>
+        <div class="dropdown m-2 dropleft">
+          <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+              <button type="button" class="btn btn-success w-100 complete">Complete</button>
+              <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
+              <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+          </div>
+        </div>
+      </li>`;
+    }
 
     //===========
     // блок для очистки данных полей после отправки формы
-    // let inputTitle = form.querySelector('#inputTitle');
-    // let inputText = form.querySelector('#inputText');
+    let inputTitle = form.querySelector('#inputTitle');
+    let inputText = form.querySelector('#inputText');
 
-    // let lowPriority = form.querySelector('.low');
-    // let mediumPriority = form.querySelector('.medium');
-    // let highPriority = form.querySelector('.high');
+    let redBtn = form.querySelector('#red');
+    let orangeBtn = form.querySelector('#orange');
+    let greenBtn = form.querySelector('#green');
+    let turquoiseBtn = form.querySelector('#turquoise');
+    let blueBtn = form.querySelector('#blue');
 
 
-    // inputTitle.removeAttribute('value');
-    // inputText.removeAttribute('value');
+    let lowPriority = form.querySelector('.low');
+    let mediumPriority = form.querySelector('.medium');
+    let highPriority = form.querySelector('.high');
 
-    // lowPriority.removeAttribute('checked');
-    // mediumPriority.removeAttribute('checked');
-    // highPriority.removeAttribute('checked');
-    form.reset();
 
-    // отключение "рычага" редактирования, чтобы следующий вызов модального окна шёл по ветке создания таска (если только
-    // не будет нажата кнопка edit, тогда "рычаг" опять включится
-    editToggle = false;
+    inputTitle.removeAttribute('value');
+    inputText.removeAttribute('value');
+
+    redBtn.removeAttribute('checked');
+    orangeBtn.removeAttribute('checked');
+    greenBtn.removeAttribute('checked');
+    turquoiseBtn.removeAttribute('checked');
+    blueBtn.removeAttribute('checked');
+
+    lowPriority.removeAttribute('checked');
+    mediumPriority.removeAttribute('checked');
+    highPriority.removeAttribute('checked');
 
     //===========
     // блок закрытия модального окна
@@ -191,9 +313,32 @@ form.addEventListener('submit', (e) => {
 
     setTimeout(modalRemove(modal), 500);
 
-    // location.reload();
-    // плохое решение проблемы с неработающими событиями после нажатия кнопки submit 
-    // при создании нового элемента или редактирования сторого
+    // отключение "рычага" редактирования, чтобы следующий вызов модального окна шёл по ветке создания таска (если только
+    // не будет нажата кнопка edit, тогда "рычаг" опять включится
+    editToggle = false;
+
+    if (theme == 'dark') {
+      document.body.style.backgroundColor = '#111111';
+    }
+
+    color = '';
+
+
+    let tasks = document.querySelectorAll('.task');
+
+    let currentTaskNumber;
+
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks.item(i) == editTask) {
+        currentTaskNumber = i;
+        break;
+      }
+    }
+
+    getStorageElements(currentTaskNumber);
+
+    setStorageElements();
+    addEditButtomListener();
 
     return;
   }
@@ -201,15 +346,39 @@ form.addEventListener('submit', (e) => {
   //=========================================================
   // создания нового таска
 
-  let newTask = document.createElement('li');
-  // newTask.outerHTML = `<li class="task list-group-item d-flex w-100 mb-2"></li>`;
-  newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2');
+  getStorageElements();
 
-  //===========
-  // блок, задающий цвет границы, шрифта, бэка кнопок и заливки элемента, исходя из темы и выбранного цвета
+  let testTask = document.createElement('li');
+  toDoBlock.append(testTask);
+
+  testTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2');
+  testTask.innerHTML = `
+  <div class="w-100 mr-2">
+    <div class="d-flex w-100 justify-content-between">
+        <h5 class="title mb-1">${formData.get('inputTitle')}</h5>
+        <div>
+            <small class="priority mr-2">${priorityValue} priority</small>
+            <small class="time">${dateString(date)}</small>
+        </div>
+
+    </div>
+    <p class="text mb-1 w-100">${formData.get('inputText')}</p>
+  </div>
+  <div class="dropdown m-2 dropleft">
+    <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+        <button type="button" class="btn btn-success w-100 complete">Complete</button>
+        <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
+        <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+    </div>
+  </div>`;
+
+
   if (theme == 'dark') {
-    newTask.style.background = '#353535';
-    newTask.style.color = '#e5e5e5';
+    testTask.style.background = '#353535';
+    testTask.style.color = '#e5e5e5';
 
     backColor = 'DarkBack';
   } else if (theme == 'light') {
@@ -217,172 +386,41 @@ form.addEventListener('submit', (e) => {
   }
 
   if (color) {
-    newTask.setAttribute('style', `border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;`);
+    testTask.setAttribute('style', `border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;`);
   }
 
 
+  function dateString(date) {
+    let str = '';
 
-    let main = document.createElement('div');
-    main.classList.add('w-100', 'mr-2');
+    if (date.getHours() < 10) {
+      str += '0' + date.getHours();
+    } else {
+      str += date.getHours();
+    }
 
-    newTask.append(main);
+    if (date.getMinutes() < 10) {
+      str += ':' + '0' + date.getMinutes();
+    } else {
+      str += ':' + date.getMinutes();
+    }
 
+    if (date.getDate() < 10) {
+      str += ' ' + '0' + date.getDate();
+    } else {
+      str += ' ' + date.getDate();
+    }
 
+    if (date.getMonth() + 1 < 10) {
+      str += '.' + '0' + (date.getMonth() + 1);
+    } else {
+      str += '.' + (date.getMonth() + 1);
+    }
 
-      let mainTitleBlock = document.createElement('div');
-      mainTitleBlock.classList.add('d-flex', 'w-100', 'justify-content-between');
+    str += '.' + date.getFullYear();
 
-      main.append(mainTitleBlock);
-
-
-
-        let mainTitle = document.createElement('h5');
-        mainTitle.classList.add('title', 'mb-1');  
-
-        // достаём текст заголовка из формы
-        mainTitle.textContent = formData.get('inputTitle');
-
-        mainTitleBlock.append(mainTitle);
-
-        //=========================================================
-
-        let mainInfoBlock = document.createElement('div');
-        mainTitleBlock.append(mainInfoBlock);
-
-
-
-            let mainPriority = document.createElement('small');
-            mainPriority.classList.add('priority', 'mr-2');
-
-            // достаём значение приоритета из формы (с помощью внешней переменной)
-            mainPriority.innerHTML = `${priorityValue} priority`;
-
-            mainInfoBlock.append(mainPriority);
-
-            //=========================================================
-
-            let mainDate = document.createElement('small');
-
-            // блок определения времени и преобразования его в нужный формат
-            let date = new Date();
-
-            function dateString(date) {
-              let str = '';
-
-              if (date.getHours() < 10) {
-                str += '0' + date.getHours();
-              } else {
-                str += date.getHours();
-              }
-
-              if (date.getMinutes() < 10) {
-                str += ':' + '0' + date.getMinutes();
-              } else {
-                str += ':' + date.getMinutes();
-              }
-
-              if (date.getDate() < 10) {
-                str += ' ' + '0' + date.getDate();
-              } else {
-                str += ' ' + date.getDate();
-              }
-
-              if (date.getMonth() + 1 < 10) {
-                str += '.' + '0' + (date.getMonth() + 1);
-              } else {
-                str += '.' + (date.getMonth() + 1);
-              }
-
-              str += '.' + date.getFullYear();
-
-              return str;
-            }
-
-            mainDate.innerHTML = `${dateString(date)}`;
-            mainDate.classList.add('time');
-
-            mainInfoBlock.append(mainDate);
-      
-      //=========================================================      
-
-      let mainText = document.createElement('p');
-      mainText.classList.add('text', 'mb-1', 'w-100');
-
-      // достаём текст из формы
-      mainText.textContent = formData.get('inputText');
-
-      main.append(mainText);
-
-    //=========================================================        
-
-    let dropdown = document.createElement('div');
-    dropdown.classList.add('dropdown', 'm-2', 'dropleft');
-    newTask.append(dropdown);
-
-
-
-      // блок, создающий кнопки 
-      let dropdownButton = document.createElement('button');
-
-      dropdownButton.classList.add('btn', 'btn-secondary', 'h-100');
-
-      dropdownButton.setAttribute('type', 'button');
-      dropdownButton.setAttribute('id', 'dropdownMenuItem1');
-      dropdownButton.setAttribute('data-toggle', 'dropdown');
-      dropdownButton.setAttribute('aria-haspopup', 'true');
-      dropdownButton.setAttribute('aria-expanded', 'false');
-
-      dropdown.append(dropdownButton);
-
-
-
-        let dropdownPoints = document.createElement('i');
-        dropdownPoints.classList.add('fas', 'fa-ellipsis-v');
-        dropdownButton.append(dropdownPoints);
-
-      //=========================================================
-
-      let dropdownMenu = document.createElement('div');
-      dropdownMenu.classList.add('dropdown-menu', 'p-2', 'flex-column', 'btn-block');
-
-      dropdownMenu.setAttribute('aria-labelledby', 'dropdownMenuItem1');
-      dropdownMenu.setAttribute('style', 'position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-162px, 0px, 0px);');
-
-      if (theme == 'dark') dropdownMenu.style.background = '#505050';
-    
-      dropdown.append(dropdownMenu);
-
-
-        // кнопка complete
-        let dropdownComplete = document.createElement('button');
-        dropdownComplete.classList.add('btn', 'btn-success', 'w-100', 'complete');
-
-        dropdownComplete.innerHTML = 'Complete';
-        dropdownMenu.append(dropdownComplete);
-
-
-
-        // кнопка edit
-        let dropdownEdit = document.createElement('button');
-        dropdownEdit.classList.add('btn', 'btn-info', 'w-100', 'my-2', 'edit');
-        dropdownEdit.setAttribute('data-toggle', 'modal');
-        dropdownEdit.setAttribute('data-target', '#exampleModal');
-
-        dropdownEdit.innerHTML = 'Edit';
-        dropdownMenu.append(dropdownEdit);
-
-
-        
-        // кнопка delete
-        let dropdownDelete = document.createElement('button');
-        dropdownDelete.classList.add('btn', 'btn-danger', 'w-100', 'delete');
-
-        dropdownDelete.innerHTML = 'Delete';
-        dropdownMenu.append(dropdownDelete);
-
-
-
-  toDoBlock.append(newTask);
+    return str;
+  }
 
   //=========================================================
   // закрытие модального окна (однако до конца не срабатывает и приходится нажать 
@@ -394,32 +432,41 @@ form.addEventListener('submit', (e) => {
   // с setом хотя бы меняется курсор, но клик всё равно холостой)
   setTimeout(modalRemove(modal), 500);
 
-  // location.reload();
-
   //=========================================================
   // блок для очистки данных полей после отправки формы
-  // let inputTitle = form.querySelector('#inputTitle');
-  // let inputText = form.querySelector('#inputText');
+  let inputTitle = form.querySelector('#inputTitle');
+  let inputText = form.querySelector('#inputText');
 
-  // let lowPriority = form.querySelector('.low');
-  // let mediumPriority = form.querySelector('.medium');
-  // let highPriority = form.querySelector('.high');
+  let redBtn = form.querySelector('#red');
+  let orangeBtn = form.querySelector('#orange');
+  let greenBtn = form.querySelector('#green');
+  let turquoiseBtn = form.querySelector('#turquoise');
+  let blueBtn = form.querySelector('#blue');
 
 
-  // inputTitle.setAttribute('value', '');
-  // inputText.setAttribute('value', '');
+  let lowPriority = form.querySelector('.low');
+  let mediumPriority = form.querySelector('.medium');
+  let highPriority = form.querySelector('.high');
 
-  // lowPriority.removeAttribute('checked');
-  // mediumPriority.removeAttribute('checked');
-  // highPriority.removeAttribute('checked');
-  form.reset();
+
+  inputTitle.removeAttribute('value');
+  inputText.removeAttribute('value');
+
+  redBtn.removeAttribute('checked');
+  orangeBtn.removeAttribute('checked');
+  greenBtn.removeAttribute('checked');
+  turquoiseBtn.removeAttribute('checked');
+  blueBtn.removeAttribute('checked');
+
+  lowPriority.removeAttribute('checked');
+  mediumPriority.removeAttribute('checked');
+  highPriority.removeAttribute('checked');
   
   color = '';
   if (theme == 'dark') document.body.style.backgroundColor = '#111111';
   editToggle = false;
 
   setStorageElements();
-  // getStorageElements();
 
   addCompleteButtomListener();
   addEditButtomListener();
@@ -450,6 +497,7 @@ lightButton.addEventListener('click', () => {
   // возврат .если тема уже светлая
   if (theme == 'light') return;
 
+  getStorageElements();
   // блок стабильных видоизменений
   let modalContent = document.querySelector('.modal-content');
   modalContent.classList.add('light-modal');
@@ -526,17 +574,20 @@ lightButton.addEventListener('click', () => {
   theme = 'light';
 
   setStorageElements();
-  // getStorageElements();
+
+  setThemeColor();
 });
 
 //===========
 
 let darkButton = document.getElementById('dark');
 
-darkButton.addEventListener('click', () => {
-  // возврат, если тема уже тёмная
+darkButton.addEventListener('click', darkTheme);
+
+function darkTheme() {
   if (theme == 'dark') return;
 
+  getStorageElements();
   // блок стабильных видоизменений
   let modalContent = document.querySelector('.modal-content');
   modalContent.classList.remove('light-modal');
@@ -614,14 +665,17 @@ darkButton.addEventListener('click', () => {
   theme = 'dark';
 
   setStorageElements();
-  // getStorageElements();
-});
+
+  setThemeColor();
+}
 
 //=========================================================
 // обработчики нажатий на кнопки сортировки по датам
 let upButton = document.querySelector('.up-button');
 
 upButton.addEventListener('click', () => {
+
+  getStorageElements();
   
   let taskList = toDoBlock.querySelectorAll('.task');
   
@@ -706,7 +760,7 @@ upButton.addEventListener('click', () => {
   }
 
   setStorageElements();
-  // getStorageElements();
+
 })
   
 //========================
@@ -714,6 +768,8 @@ upButton.addEventListener('click', () => {
 let downButton = document.querySelector('.down-button');
 
 downButton.addEventListener('click', () => {
+
+  getStorageElements();
   
   let taskList = toDoBlock.querySelectorAll('.task');
 
@@ -798,14 +854,18 @@ downButton.addEventListener('click', () => {
   }
 
   setStorageElements();
-  // getStorageElements();
+
 })
 
 //=========================================================
-// обработчик, изменяющий такст заголовка и кнопки модального окна, если идёт процесс создания нового элемента
+// обработчик, изменяющий текст заголовка и кнопки модального окна, если идёт процесс создания нового элемента
 let addTaskButton = document.querySelector('#addTaskButton');
 
 addTaskButton.addEventListener('click', () => {
+  form.reset();
+
+  editToggle = false;
+
   let modalTitle = document.querySelector('#exampleModalLabel');
   modalTitle.textContent = 'Add task';
 
@@ -822,10 +882,8 @@ function addCompleteButtomListener() {
   completeButton.forEach(function(btn) {
 
     btn.addEventListener('click', () => {
+      
       let task = btn.closest(".task");
-
-      let btnsBlock = task.querySelector('.btn-block');
-      btnsBlock.classList.remove('show');
 
       btn.nextElementSibling.remove();
       btn.remove();
@@ -833,6 +891,21 @@ function addCompleteButtomListener() {
       let completedBlock = document.querySelector('#completedTasks');
 
       task.classList.add('completed');
+
+      let tasks = document.querySelectorAll('.task');
+
+      let currentTaskNumber;
+
+      for (let i = 0; i < tasks.length; i++) {
+        if (tasks.item(i) == task) {
+          currentTaskNumber = i;
+          alert (i);
+          break;
+        }
+      }
+
+      getStorageElements(currentTaskNumber);
+
       completedBlock.appendChild(task);
 
       setStorageElements();
@@ -872,6 +945,10 @@ function addEditButtomListener() {
       let priority = editTask.querySelector('.priority');
       let arr = priority.textContent.split(' ');
 
+      
+      editTime = editTask.querySelector('.time').textContent;
+      editColor = editTask.getAttribute('style');
+
 
       switch (arr[0]) {
         case 'Low':
@@ -884,7 +961,7 @@ function addEditButtomListener() {
           let mediumPriority = form.querySelector('.medium');
           mediumPriority.setAttribute('checked','');
 
-          priorityValue = 'Madium';
+          priorityValue = 'Medium';
           break;
         case 'High':
           let highPriority = form.querySelector('.high');
@@ -921,7 +998,19 @@ function addDeleteButtomListener() {
 
     btn.addEventListener('click', () => {
       let task = btn.closest(".task");
-      task.remove();
+
+      let tasks = document.querySelectorAll('.task');
+
+      let currentTaskNumber;
+
+      for (let i = 0; i < tasks.length; i++) {
+        if (tasks.item(i) == task) {
+          currentTaskNumber = i;
+          break;
+        }
+      }
+
+      getStorageElements(currentTaskNumber);
 
       setStorageElements();
 
@@ -963,35 +1052,182 @@ colorBtns.forEach(function(btn) {
   });
 })
 
-//=========================================================
-localStorage
 
-function getStorageElements() {
+
+//=========================================================
+// localStorage
+
+function getStorageElements(delTaskNum) {
 
   if (!localStorage.getItem('pageStorage')) return;
 
-  let container = document.querySelector('#container');
-  container.innerHTML = '';
-  container.insertAdjacentHTML('beforeend', localStorage.getItem('pageStorage'));
+  let completedBlock = document.querySelector('#completedTasks');
+
+  toDoBlock.innerHTML = '';
+  completedBlock.innerHTML = '';
+
+  let pageStorage = JSON.parse(localStorage.getItem('pageStorage'));
+
+  for (let i = 0; i < pageStorage.length; i++) {
+
+    if (i == delTaskNum && editTaskData != '') {
+      let newTask = document.createElement('li');
+      toDoBlock.append(newTask);
+
+      newTask.outerHTML = editTaskData;
+
+      editTaskData = '';
+      continue;
+    }
+
+    if (i == delTaskNum) continue;
+    
+    if (pageStorage[i] == undefined) return;
+
+    let obj = pageStorage[i][0];
+
+    if (obj['place'] == 'toDo') {
+
+      let newTask = document.createElement('li');
+      toDoBlock.append(newTask);
+
+      newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2');
+      newTask.innerHTML = `
+      <div class="w-100 mr-2">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="title mb-1">${obj.title}</h5>
+            <div>
+                <small class="priority mr-2">${obj.priority} priority</small>
+                <small class="time">${obj.time}</small>
+            </div>
+
+        </div>
+        <p class="text mb-1 w-100">${obj.text}</p>
+      </div>
+      <div class="dropdown m-2 dropleft">
+        <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+            <button type="button" class="btn btn-success w-100 complete">Complete</button>
+            <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
+            <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+        </div>
+      </div>`;
+
+      if (obj.style) {
+        newTask.setAttribute('style', obj.style);
+      }
+
+      continue;
+
+    } 
+    
+    if (obj['place'] == 'completed') {
+
+      let newTask = document.createElement('li');
+      completedBlock.append(newTask);
+
+      newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2', 'completed');
+      newTask.innerHTML = `
+      <div class="w-100 mr-2">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="title mb-1">${obj.title}</h5>
+            <div>
+                <small class="priority mr-2">${obj.priority} priority</small>
+                <small class="time">${obj.time}</small>
+            </div>
+
+        </div>
+        <p class="text mb-1 w-100">${obj.text}</p>
+      </div>
+      <div class="dropdown m-2 dropleft">
+        <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+            <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+        </div>
+      </div>`;
+
+      if (obj.style) {
+        newTask.setAttribute('style', obj.style);
+      }
+    }
+  }
+
+
+  addCompleteButtomListener();
+  addEditButtomListener();
+  addDeleteButtomListener();
 }
 
 
-window.addEventListener('unload', setStorageElements())
+window.addEventListener('unload', setStorageElements);
 
 function setStorageElements() {
-  localStorage.clear();
 
-  let pageStorage = document.querySelector('#container');
-  localStorage.setItem('pageStorage', pageStorage.innerHTML);
+  localStorage.removeItem('pageStorage');
+
+  let tasks = document.querySelectorAll('.task');
+  let pageStorage = [];
+
+  for (let i = 0; i < tasks.length; i++) {
+
+    let place = '';
+
+    if (tasks[i].classList.contains('completed')) {
+      place = 'completed';
+    } else {
+      place = 'toDo';
+    }
+
+
+    let taskPriorityValue;
+    let priority = tasks[i].querySelector('.priority');
+    let priorityArr = priority.textContent.split(' ');
+
+    switch (priorityArr[0]) {
+      case 'Low':
+
+        taskPriorityValue = 'Low';
+        break;
+
+      case 'Medium':
+
+        taskPriorityValue = 'Medium';
+        break;
+
+      case 'High':
+
+        taskPriorityValue = 'High';
+        break;
+    }
+
+
+    let taskStorage = {
+      "place": place,
+      "title": tasks[i].querySelector('.title').textContent,
+      "priority": taskPriorityValue,
+      "time": tasks[i].querySelector('.time').textContent,
+      "text": tasks[i].querySelector('.text').textContent,
+    };
+
+    
+    if (tasks[i].getAttribute('style')) {
+      taskStorage.style = tasks[i].getAttribute('style');
+    };
+
+    pageStorage.push([taskStorage]);
+  }
+
+  localStorage.setItem('pageStorage', JSON.stringify(pageStorage));
 }
 
 
+window.addEventListener('unload', setThemeColor());
 
+function setThemeColor() {
+  localStorage.setItem('theme', theme);
+}
 
-
-
-
-
-
-
-    
