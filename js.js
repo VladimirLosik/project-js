@@ -11,8 +11,9 @@ let editColor = '';
 
 
 // функция для загрузки информации из localStorage
-getStorageElements();
-
+if (localStorage.getItem('pageStorage')) {
+  getStorageElements();
+}
 
 // объекты для хранения тасов перед помещением в 
 // let storageToDo = {};
@@ -899,7 +900,6 @@ function addCompleteButtomListener() {
       for (let i = 0; i < tasks.length; i++) {
         if (tasks.item(i) == task) {
           currentTaskNumber = i;
-          alert (i);
           break;
         }
       }
