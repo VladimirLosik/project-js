@@ -86,6 +86,13 @@ if (theme == 'dark') {
 
   navbar.classList.remove("bg-light");
   navbar.style.backgroundColor = '#353535';
+
+  // изменение цвета меню кнопок 
+  let menus = document.querySelectorAll('.dropdown-menu');
+
+  for (let i = 0; i < menus.length; i++) {
+    menus[i].style.background = '#505050';
+  }
 }
 
 // объект с цветами 
@@ -657,7 +664,7 @@ function darkTheme() {
   }
 
   // изменение цвета меню кнопок 
-  let menus = document.getElementsByClassName('dropdown-menu');
+  let menus = document.querySelectorAll('.dropdown-menu');
 
   for (let i = 0; i < menus.length; i++) {
     menus[i].style.background = '#505050';
@@ -1100,7 +1107,6 @@ function getStorageElements(delTaskNum) {
                 <small class="priority mr-2">${obj.priority} priority</small>
                 <small class="time">${obj.time}</small>
             </div>
-
         </div>
         <p class="text mb-1 w-100">${obj.text}</p>
       </div>
