@@ -9,6 +9,14 @@ let editToggle = false;
 let editTime = '';
 let editColor = '';
 
+let theme;
+
+if (localStorage.getItem('theme')) {
+  theme = localStorage.getItem('theme')
+} else {
+  theme = 'light';
+}
+
 
 // функция для загрузки информации из localStorage
 if (localStorage.getItem('pageStorage')) {
@@ -36,13 +44,6 @@ let editTask;
 
 //=========================================================
 // переменная с информацией о теме, изначально светлая
-let theme;
-
-if (localStorage.getItem('theme')) {
-  theme = localStorage.getItem('theme')
-} else {
-  theme = 'light';
-}
 
 if (theme == 'dark') {
   let modalContent = document.querySelector('.modal-content');
@@ -397,6 +398,12 @@ form.addEventListener('submit', (e) => {
     testTask.setAttribute('style', `border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;`);
   }
 
+  // изменение цвета меню кнопок при dark theme
+  if (theme == "dark") {
+    let menu = testTask.querySelector('.dropdown-menu');
+    menu.style.background = '#505050';
+  }
+  
 
   function dateString(date) {
     let str = '';
@@ -573,7 +580,7 @@ lightButton.addEventListener('click', () => {
   }
 
   // изменение цвета меню кнопок 
-  let menus = document.querySelector('.dropdown-menu');
+  let menus = document.querySelectorAll('.dropdown-menu');
 
   for (let i = 0; i < menus.length; i++) {
     menus[i].style.background = '#fff';
@@ -1125,6 +1132,15 @@ function getStorageElements(delTaskNum) {
         newTask.setAttribute('style', obj.style);
       }
 
+      // изменение цвета меню кнопок 
+      if (theme == 'dark') {
+        let menus = document.querySelectorAll('.dropdown-menu');
+
+        for (let i = 0; i < menus.length; i++) {
+          menus[i].style.background = '#505050';
+        }
+      }
+
       continue;
 
     } 
@@ -1158,6 +1174,15 @@ function getStorageElements(delTaskNum) {
 
       if (obj.style) {
         newTask.setAttribute('style', obj.style);
+      }
+
+      // изменение цвета меню кнопок 
+      if (theme == 'dark') {
+        let menus = document.querySelectorAll('.dropdown-menu');
+
+        for (let i = 0; i < menus.length; i++) {
+          menus[i].style.background = '#505050';
+        }
       }
     }
   }
