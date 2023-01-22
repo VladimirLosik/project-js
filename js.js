@@ -58,7 +58,7 @@ if (pageArr != undefined) {
 
 addThemeBtnListener();
 addTaskBtnListener();
-addColorBtnsListener()
+addColorBtnsListener();
 
 // счётчики количества тасков в разных блоках 
 toDoCounter();
@@ -154,35 +154,7 @@ form.addEventListener('submit', (e) => {
   
     printElements(pageArr)
 
-    //===========
-    // блок для очистки данных полей после отправки формы
-    let inputTitle = form.querySelector('#inputTitle');
-    let inputText = form.querySelector('#inputText');
-
-    let redBtn = form.querySelector('#red');
-    let orangeBtn = form.querySelector('#orange');
-    let greenBtn = form.querySelector('#green');
-    let turquoiseBtn = form.querySelector('#turquoise');
-    let blueBtn = form.querySelector('#blue');
-
-
-    let lowPriority = form.querySelector('.low');
-    let mediumPriority = form.querySelector('.medium');
-    let highPriority = form.querySelector('.high');
-
-
-    inputTitle.removeAttribute('value');
-    inputText.removeAttribute('value');
-
-    redBtn.removeAttribute('checked');
-    orangeBtn.removeAttribute('checked');
-    greenBtn.removeAttribute('checked');
-    turquoiseBtn.removeAttribute('checked');
-    blueBtn.removeAttribute('checked');
-
-    lowPriority.removeAttribute('checked');
-    mediumPriority.removeAttribute('checked');
-    highPriority.removeAttribute('checked');
+    formReset();
 
     //===========
     // блок закрытия модального окна
@@ -194,10 +166,6 @@ form.addEventListener('submit', (e) => {
     // отключение "рычага" редактирования, чтобы следующий вызов модального окна шёл по ветке создания таска (если только
     // не будет нажата кнопка edit, тогда "рычаг" опять включится
     editToggle = false;
-
-    // if (theme == 'dark') {
-    //   document.body.style.backgroundColor = '#111111';
-    // }
 
     color = '';
 
@@ -213,12 +181,7 @@ form.addEventListener('submit', (e) => {
       }
     }
 
-
-    // printElements(pageArr)
-    // getStorageElements();
-
     setStorageElements();
-    // addEditButtomListener();
 
     return;
   }
@@ -255,45 +218,11 @@ form.addEventListener('submit', (e) => {
 
   //=========================================================
   // блок для очистки данных полей после отправки формы
-  let inputTitle = form.querySelector('#inputTitle');
-  let inputText = form.querySelector('#inputText');
-
-  let redBtn = form.querySelector('#red');
-  let orangeBtn = form.querySelector('#orange');
-  let greenBtn = form.querySelector('#green');
-  let turquoiseBtn = form.querySelector('#turquoise');
-  let blueBtn = form.querySelector('#blue');
-
-
-  let lowPriority = form.querySelector('.low');
-  let mediumPriority = form.querySelector('.medium');
-  let highPriority = form.querySelector('.high');
-
-
-  inputTitle.removeAttribute('value');
-  inputText.removeAttribute('value');
-
-  redBtn.removeAttribute('checked');
-  orangeBtn.removeAttribute('checked');
-  greenBtn.removeAttribute('checked');
-  turquoiseBtn.removeAttribute('checked');
-  blueBtn.removeAttribute('checked');
-
-  lowPriority.removeAttribute('checked');
-  mediumPriority.removeAttribute('checked');
-  highPriority.removeAttribute('checked');
-  form.reset();
+  formReset();
   
   color = '';
-  if (theme == 'dark') document.body.style.backgroundColor = '#111111';
-  editToggle = false;
 
   setStorageElements();
-
-  // addBtnListener();
-  // addCompleteButtomListener();
-  // addEditButtomListener();
-  // addDeleteButtomListener();
 
   toDoCounter();
   completedCounter();
@@ -642,7 +571,7 @@ downButton.addEventListener('click', () => {
 let addTaskButton = document.querySelector('#addTaskButton');
 
 addTaskButton.addEventListener('click', () => {
-  form.reset();
+  formReset();
 
   editToggle = false;
 
@@ -797,6 +726,18 @@ function addColorBtnsListener() {
     target.closest('.color-check').querySelector('input').setAttribute('checked','');
 
   })
+}
+
+function formReset() {
+
+  form.reset();
+
+  let formText = form.querySelectorAll('.form-control');
+  formText.forEach(elem => elem.removeAttribute('value'));
+
+  let formBtns = form.querySelectorAll('.form-check-input');
+  formBtns.forEach(btn => btn.removeAttribute('checked'));
+  
 }
 
 //=========================================================
