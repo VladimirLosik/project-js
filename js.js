@@ -1,9 +1,18 @@
-// блок активных тасков и блок формы
+let mainBlock = document.querySelector('.main-block');
 let toDoBlock = document.querySelector('#currentTasks');
+let completedBlock = document.querySelector('#completedTasks');
 let form = document.querySelector('#form1');
 
-// рычаг для переключения поведения результатов формы при отправки, когда он включен, элемент редактируется, когда выключен, создаётся новый
-// включение происходит по нажатию одной из кнопок Edit
+let pageArr = [];
+
+let index;
+
+if (localStorage.getItem('index')) {
+  index = +localStorage.getItem('index')
+} else {
+  index = 0;
+}
+
 let editToggle = false;
 
 let editTime = '';
@@ -20,20 +29,36 @@ if (localStorage.getItem('theme')) {
 
 // функция для загрузки информации из localStorage
 if (localStorage.getItem('pageStorage')) {
-  getStorageElements();
+  getElements();
+} else {
+  let taskObj = {
+    "isCompleted": false,
+    "title": "Title",
+    "priority": "High",
+    "time": new Date("2000-01-01T09:00:00.000Z"),
+    "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci aliquid eaque eligendi error eveniet nostrum nulla pariatur repudiandae, veniam. Provident.",
+    "color": 'white',
+    "index": index,
+  }
+
+  index++;
+
+  setIndex();
+
+  pageArr.push(taskObj);
+
+  setStorageElements();
 }
 
-// объекты для хранения тасов перед помещением в 
-// let storageToDo = {};
-// let compStorage = {};
-
-// счётчик количества тасков в localStorage 
-let taskCounter = 0;
+if (pageArr != undefined) {
+  printElements(pageArr);
+}
 
 // включение обработчиков на кнопках Complete, Edit и Delete
-addCompleteButtomListener();
-addEditButtomListener();
-addDeleteButtomListener();
+
+addThemeBtnListener();
+addTaskBtnListener();
+addColorBtnsListener()
 
 // счётчики количества тасков в разных блоках 
 toDoCounter();
@@ -43,57 +68,9 @@ completedCounter();
 let editTask;
 
 //=========================================================
-// переменная с информацией о теме, изначально светлая
 
 if (theme == 'dark') {
-  let modalContent = document.querySelector('.modal-content');
-  modalContent.classList.remove('light-modal');
-  modalContent.classList.add('dark-modal');
-
-  let textFields = document.querySelectorAll('.form-control');
-  textFields.forEach(function(field) {
-    field.classList.add('dark-field');
-  })
-
-  let closeX = document.querySelector('.closeX');
-  closeX.classList.add('dark-x');
-  
-
-  let redBtn = document.querySelector('.red');
-  redBtn.classList.add('dark-red');
-  redBtn.classList.remove('red');
-
-  let orangeBtn = document.querySelector('.orange');
-  orangeBtn.classList.add('dark-orange');
-  orangeBtn.classList.remove('orange');
-
-  let greenBtn = document.querySelector('.green');
-  greenBtn.classList.add('dark-green');
-  greenBtn.classList.remove('green');
-
-  let turquoiseBtn = document.querySelector('.turquoise');
-  turquoiseBtn.classList.add('dark-turquoise');
-  turquoiseBtn.classList.remove('turquoise');
-
-  let blueBtn = document.querySelector('.blue');
-  blueBtn.classList.add('dark-blue');
-  blueBtn.classList.remove('blue');
-
-
-  document.body.style.backgroundColor = '#111111';
-
-  container.style.backgroundColor = '#111111';
-  container.style.color = '#e5e5e5';
-
-  navbar.classList.remove("bg-light");
-  navbar.style.backgroundColor = '#353535';
-
-  // изменение цвета меню кнопок 
-  let menus = document.querySelectorAll('.dropdown-menu');
-
-  for (let i = 0; i < menus.length; i++) {
-    menus[i].style.background = '#505050';
-  }
+  darkTheme();
 }
 
 // объект с цветами 
@@ -142,56 +119,14 @@ closeButton.addEventListener('click', () => {
   editToggle = false;
 })
 
-// функция смены цвета бэкграунда на тёмную|светлую противоположность
-function BackColor(task) {
-  switch (task) {
-    case 'rgb(255, 200, 200)':
-      return 'rgb(100, 50, 50)';
-    case 'rgb(255, 225, 150)':
-      return 'rgb(100, 70, 50)';
-    case 'rgb(220, 255, 200)':
-      return 'rgb(50, 80, 50)';
-    case 'rgb(210, 255, 240)':
-      return 'rgb(50, 80, 75)';
-    case 'rgb(190, 230, 255)':
-      return 'rgb(35, 50, 100)';
-
-    case 'rgb(100, 50, 50)':
-      return 'rgb(255, 200, 200)';
-    case 'rgb(100, 70, 50)':
-      return 'rgb(255, 225, 150)';
-    case 'rgb(50, 80, 50)':
-      return 'rgb(220, 255, 200)';
-    case 'rgb(50, 80, 75)':
-      return 'rgb(210, 255, 240)';
-    case 'rgb(35, 50, 100)':
-      return 'rgb(190, 230, 255)';
-  }
-}
-
-// блок, изменяющий значение приоритета
-let priorityValue;
-
-Low.onchange = function () {
-  priorityValue = 'Low';
-}
-
-Medium.onchange = function () {
-  priorityValue = 'Medium';
-}
-
-High.onchange = function () {
-  priorityValue = 'High';
-}
-
 
 // обработчик нажатия submit модального окна (имеет ветку создания таска и редактирования)
 let editTaskData = '';
 
 form.addEventListener('submit', (e) => {
-  e.preventDefault();
+  e.preventDefault(); 
 
-  let formData = new FormData(form); 
+  let formData = new FormData(form);
 
   let modalBackdrop = document.querySelector('.modal-backdrop');
   let modal = document.querySelector('.modal');
@@ -199,91 +134,25 @@ form.addEventListener('submit', (e) => {
   let date = new Date();
 
   //=========================================================
-  // ответвление для редактирования, а не создания таска
+  // ответвление для редактирования таска
 
   if (editToggle == true) {
 
-    // editTask.innerHTML = `
-    // <div class="w-100 mr-2">
-    //   <div class="d-flex w-100 justify-content-between">
-    //       <h5 class="title mb-1">${formData.get('inputTitle')}</h5>
-    //       <div>
-    //           <small class="priority mr-2">${priorityValue} priority</small>
-    //           <small class="time">${editTime}</small>
-    //       </div>
+    for (let i = 0; i < pageArr.length; i++) {
+      if (+editTask.classList[1] == pageArr[i].index) {
+        pageArr[i].title = formData.get('inputTitle');
+        pageArr[i].priority = formData.get('priority');
+        pageArr[i].text = formData.get('inputText');
 
-    //   </div>
-    //   <p class="text mb-1 w-100">${formData.get('inputText')}</p>
-    // </div>
-    // <div class="dropdown m-2 dropleft">
-    //   <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    //       <i class="fas fa-ellipsis-v"></i>
-    //   </button>
-    //   <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
-    //       <button type="button" class="btn btn-success w-100 complete">Complete</button>
-    //       <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
-    //       <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-    //   </div>
-    // </div>`;
+        if (formData.get('colors')) {
+          pageArr[i].color = formData.get('colors');
+        } 
 
-    // редактирование цвета:
-    // определение текущей темы страницы
-    if (theme == 'dark') backColor = 'DarkBack'; 
-    if (theme == 'light') backColor = 'LightBack';
-    
-    // добавление цвета к элементу
-    if (color) {
-      editTaskData = `
-      <li class="task list-group-item d-flex w-100 mb-2" style="border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;">
-        <div class="w-100 mr-2">
-          <div class="d-flex w-100 justify-content-between">
-              <h5 class="title mb-1">${formData.get('inputTitle')}</h5>
-              <div>
-                  <small class="priority mr-2">${priorityValue} priority</small>
-                  <small class="time">${editTime}</small>
-              </div>
-
-          </div>
-          <p class="text mb-1 w-100">${formData.get('inputText')}</p>
-        </div>
-        <div class="dropdown m-2 dropleft">
-          <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-ellipsis-v"></i>
-          </button>
-          <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
-              <button type="button" class="btn btn-success w-100 complete">Complete</button>
-              <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
-              <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-          </div>
-        </div>
-      </li>`;
-      // editTask.setAttribute('style', `border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;`);
-    } else {
-      editTaskData = `
-      <li class="task list-group-item d-flex w-100 mb-2" style="${editColor}">
-        <div class="w-100 mr-2">
-          <div class="d-flex w-100 justify-content-between">
-              <h5 class="title mb-1">${formData.get('inputTitle')}</h5>
-              <div>
-                  <small class="priority mr-2">${priorityValue} priority</small>
-                  <small class="time">${editTime}</small>
-              </div>
-
-          </div>
-          <p class="text mb-1 w-100">${formData.get('inputText')}</p>
-        </div>
-        <div class="dropdown m-2 dropleft">
-          <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-ellipsis-v"></i>
-          </button>
-          <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
-              <button type="button" class="btn btn-success w-100 complete">Complete</button>
-              <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
-              <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-          </div>
-        </div>
-      </li>`;
-    }
+        break;
+      }
+    }  
+  
+    printElements(pageArr)
 
     //===========
     // блок для очистки данных полей после отправки формы
@@ -326,9 +195,9 @@ form.addEventListener('submit', (e) => {
     // не будет нажата кнопка edit, тогда "рычаг" опять включится
     editToggle = false;
 
-    if (theme == 'dark') {
-      document.body.style.backgroundColor = '#111111';
-    }
+    // if (theme == 'dark') {
+    //   document.body.style.backgroundColor = '#111111';
+    // }
 
     color = '';
 
@@ -344,10 +213,12 @@ form.addEventListener('submit', (e) => {
       }
     }
 
-    getStorageElements(currentTaskNumber);
+
+    // printElements(pageArr)
+    // getStorageElements();
 
     setStorageElements();
-    addEditButtomListener();
+    // addEditButtomListener();
 
     return;
   }
@@ -355,92 +226,27 @@ form.addEventListener('submit', (e) => {
   //=========================================================
   // создания нового таска
 
-  getStorageElements();
-
-  let testTask = document.createElement('li');
-  toDoBlock.append(testTask);
-
-  testTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2');
-  testTask.innerHTML = `
-  <div class="w-100 mr-2">
-    <div class="d-flex w-100 justify-content-between">
-        <h5 class="title mb-1">${formData.get('inputTitle')}</h5>
-        <div>
-            <small class="priority mr-2">${priorityValue} priority</small>
-            <small class="time">${dateString(date)}</small>
-        </div>
-
-    </div>
-    <p class="text mb-1 w-100">${formData.get('inputText')}</p>
-  </div>
-  <div class="dropdown m-2 dropleft">
-    <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-ellipsis-v"></i>
-    </button>
-    <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
-        <button type="button" class="btn btn-success w-100 complete">Complete</button>
-        <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
-        <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-    </div>
-  </div>`;
-
-
-  if (theme == 'dark') {
-    testTask.style.background = '#353535';
-    testTask.style.color = '#e5e5e5';
-
-    backColor = 'DarkBack';
-  } else if (theme == 'light') {
-    backColor = 'LightBack';
+  let taskObj = {
+    "isCompleted": false,
+    "title": formData.get('inputTitle'),
+    "priority": formData.get('priority'),
+    "time": date,
+    "text": formData.get('inputText'),
+    "index": index,
   }
 
-  if (color) {
-    testTask.setAttribute('style', `border-color: ${colors[color]}; background-color: ${colors[color + backColor]}!important;`);
-  }
+  taskObj.color = formData.get('colors') ? formData.get('colors') : "white";
 
-  // изменение цвета меню кнопок при dark theme
-  if (theme == "dark") {
-    let menu = testTask.querySelector('.dropdown-menu');
-    menu.style.background = '#505050';
-  }
-  
+  index++;
 
-  function dateString(date) {
-    let str = '';
+  setIndex();
 
-    if (date.getHours() < 10) {
-      str += '0' + date.getHours();
-    } else {
-      str += date.getHours();
-    }
+  pageArr.push(taskObj);
 
-    if (date.getMinutes() < 10) {
-      str += ':' + '0' + date.getMinutes();
-    } else {
-      str += ':' + date.getMinutes();
-    }
-
-    if (date.getDate() < 10) {
-      str += ' ' + '0' + date.getDate();
-    } else {
-      str += ' ' + date.getDate();
-    }
-
-    if (date.getMonth() + 1 < 10) {
-      str += '.' + '0' + (date.getMonth() + 1);
-    } else {
-      str += '.' + (date.getMonth() + 1);
-    }
-
-    str += '.' + date.getFullYear();
-
-    return str;
-  }
+  printElements(pageArr);
 
   //=========================================================
-  // закрытие модального окна (однако до конца не срабатывает и приходится нажать 
-  // один раз вхолостую, location.reload в связке с localStorage могло бы быть неплохим решением, но чувствую, что
-  // есть более чистое)
+  // закрытие модального окна 
   modalBackdrop.remove();  
   modal.classList.remove('show');
 
@@ -476,6 +282,7 @@ form.addEventListener('submit', (e) => {
   lowPriority.removeAttribute('checked');
   mediumPriority.removeAttribute('checked');
   highPriority.removeAttribute('checked');
+  form.reset();
   
   color = '';
   if (theme == 'dark') document.body.style.backgroundColor = '#111111';
@@ -483,9 +290,10 @@ form.addEventListener('submit', (e) => {
 
   setStorageElements();
 
-  addCompleteButtomListener();
-  addEditButtomListener();
-  addDeleteButtomListener();
+  // addBtnListener();
+  // addCompleteButtomListener();
+  // addEditButtomListener();
+  // addDeleteButtomListener();
 
   toDoCounter();
   completedCounter();
@@ -504,16 +312,33 @@ function modalRemove(modal) {
 }
 
 //=========================================================
-// блок с переключателями тем страницы
 
-let lightButton = document.getElementById('light');
+function addThemeBtnListener() {
 
-lightButton.addEventListener('click', () => {
-  // возврат .если тема уже светлая
+  let themeBtns = document.querySelector('.dropdown-menu-right');
+
+  themeBtns.addEventListener('click', (e) => {
+    let target = e.target;
+
+    if (target.classList.contains('btn-light')) {
+      lightTheme();
+    } else if (target.classList.contains('btn-dark')) {
+      darkTheme();
+    }
+  })
+}
+
+//=========================================================
+
+function lightTheme() {
+
   if (theme == 'light') return;
 
-  getStorageElements();
-  // блок стабильных видоизменений
+  theme = 'light';
+
+  printElements(pageArr);
+
+  // блок стабильных видоизменений модального окна
   let modalContent = document.querySelector('.modal-content');
   modalContent.classList.add('light-modal');
   modalContent.classList.remove('dark-modal');
@@ -547,63 +372,32 @@ lightButton.addEventListener('click', () => {
   blueBtn.classList.add('blue');
   blueBtn.classList.remove('dark-blue');
 
+  // блок стабильных видоизменений основного окна
 
-  document.body.style.backgroundColor = '#fff';
+  document.body.classList.add('light-main');
 
-  container.style.background = '#fff';
-  container.style.color = 'black';
+  container.classList.add('light-main');
 
-  navbar.classList.add("bg-light");
-  navbar.style.background = '#f8f9fa';
+  navbar.classList.add('bg-light', 'light-nav');
+  navbar.classList.remove('dark-nav');
 
-  // блок варьируемых видоизменений
-  // получение коллекции всех тасков
-  let tasks = document.querySelectorAll('.task');
-  
-  // добавление методов массива, фильтрация тасков со стандартным цветом и изменение цвета на противоположный
-  let notColoredDarkArr = Array.prototype.filter.call(tasks, function(elem){
-    return elem.style.backgroundColor == 'rgb(53, 53, 53)';
-  });
-
-  for (let i = 0; i < notColoredDarkArr.length; i++) {
-    notColoredDarkArr[i].style.backgroundColor = '#fff';
-    notColoredDarkArr[i].style.color = 'black';
-  }
-  
-  // добавление методов массива, фильтрация окрашенных тасков и изменение цвета на противоположный окрашенный
-  let coloredDarkArr = Array.prototype.filter.call(tasks, function(elem){
-    return elem.style.backgroundColor != '';
-  });
-
-  for (let i = 0; i < coloredDarkArr.length; i++) {
-    tasks[i].style.backgroundColor = BackColor(tasks[i].style.backgroundColor);
-  }
-
-  // изменение цвета меню кнопок 
-  let menus = document.querySelectorAll('.dropdown-menu');
-
-  for (let i = 0; i < menus.length; i++) {
-    menus[i].style.background = '#fff';
-  }
-
-  theme = 'light';
+  // сохранение
 
   setStorageElements();
-
   setThemeColor();
-});
+};
 
 //===========
 
-let darkButton = document.getElementById('dark');
-
-darkButton.addEventListener('click', darkTheme);
-
 function darkTheme() {
-  if (theme == 'dark') return;
 
-  getStorageElements();
-  // блок стабильных видоизменений
+  if (theme == 'dark' && !document.querySelector('.bg-light')) return;
+
+  theme = 'dark';
+
+  printElements(pageArr);
+
+  // блок стабильных видоизменений модального окна
   let modalContent = document.querySelector('.modal-content');
   modalContent.classList.remove('light-modal');
   modalContent.classList.add('dark-modal');
@@ -614,8 +408,7 @@ function darkTheme() {
   })
 
   let closeX = document.querySelector('.closeX');
-  closeX.classList.add('dark-x');
-  
+  closeX.classList.add('dark-x'); 
 
   let redBtn = document.querySelector('.red');
   redBtn.classList.add('dark-red');
@@ -637,50 +430,20 @@ function darkTheme() {
   blueBtn.classList.add('dark-blue');
   blueBtn.classList.remove('blue');
 
+  // блок стабильных видоизменений основного окна
 
-  document.body.style.backgroundColor = '#111111';
+  document.body.classList.add('dark-main');
+  document.body.classList.remove('light-main');
 
-  container.style.backgroundColor = '#111111';
-  container.style.color = '#e5e5e5';
+  container.classList.add('dark-main');
+  container.classList.remove('light-main');
 
-  navbar.classList.remove("bg-light");
-  navbar.style.backgroundColor = '#353535';
+  navbar.classList.add('dark-nav');
+  navbar.classList.remove('bg-light', 'light-nav');
 
-  // блок варьируемых видоизменений
-  // получение коллекции всех тасков
-  let tasks = document.querySelectorAll('.task');
-
-  // добавление методов массива, фильтрация тасков со стандартным цветом (если цвет не определён - он белый по умолчанию, 
-  // если это уже второй цикл изменения тем, он будет Белым) и изменение цвета на противоположный
-  let notColoredLightArr = Array.prototype.filter.call(tasks, function(elem){
-    return elem.style.backgroundColor == '' || elem.style.backgroundColor == 'rgb(255, 255, 255)';
-  });
-
-  for (let i = 0; i < notColoredLightArr.length; i++) {
-    notColoredLightArr[i].style.backgroundColor = '#353535';
-    notColoredLightArr[i].style.color = '#e5e5e5';
-  }
-
-  // добавление методов массива, фильтрация окрашенных тасков и изменение цвета на противоположный окрашенный
-  let coloredLightArr = Array.prototype.filter.call(tasks, function(elem){
-    return elem.style.backgroundColor != '';
-  });
-
-  for (let i = 0; i < coloredLightArr.length; i++) {
-    tasks[i].style.backgroundColor = BackColor(tasks[i].style.backgroundColor);
-  }
-
-  // изменение цвета меню кнопок 
-  let menus = document.querySelectorAll('.dropdown-menu');
-
-  for (let i = 0; i < menus.length; i++) {
-    menus[i].style.background = '#505050';
-  }
-
-  theme = 'dark';
+  // сохранение
 
   setStorageElements();
-
   setThemeColor();
 }
 
@@ -690,89 +453,90 @@ let upButton = document.querySelector('.up-button');
 
 upButton.addEventListener('click', () => {
 
-  getStorageElements();
+  pageArr = pageArr.reverse();
+
+  printElements(pageArr)
   
-  let taskList = toDoBlock.querySelectorAll('.task');
+  // let taskList = toDoBlock.querySelectorAll('.task');
   
-  if (taskList.length > 1) {
-    let itemsArray = [];
-    let parent = taskList[0].parentNode;
+  // if (taskList.length > 1) {
+  //   let itemsArray = [];
+  //   let parent = taskList[0].parentNode;
 
-    for (let i = 0; i < taskList.length; i++) {    
-      itemsArray.push(parent.removeChild(taskList[i]));
-    }
+  //   for (let i = 0; i < taskList.length; i++) {    
+  //     itemsArray.push(parent.removeChild(taskList[i]));
+  //   }
 
-    itemsArray.sort(function(taskA, taskB) {
-      let timeA = taskA.querySelector('.time').textContent;
-      let timeB = taskB.querySelector('.time').textContent;
+  //   itemsArray.sort(function(taskA, taskB) {
+  //     let timeA = taskA.querySelector('.time').textContent;
+  //     let timeB = taskB.querySelector('.time').textContent;
 
-      timeA = timeA.split(' ');
-      timeB = timeB.split(' ');
+  //     timeA = timeA.split(' ');
+  //     timeB = timeB.split(' ');
 
-      let hoursMinutesA = timeA[0].split(':');
-      let hoursMinutesB = timeB[0].split(':');
+  //     let hoursMinutesA = timeA[0].split(':');
+  //     let hoursMinutesB = timeB[0].split(':');
 
-      timeA = timeA[1].split('.');
-      timeB = timeB[1].split('.');
+  //     timeA = timeA[1].split('.');
+  //     timeB = timeB[1].split('.');
 
-      let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
-      let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
+  //     let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
+  //     let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
       
-      if (dateA < dateB) {
-        return 1;
-      }
-      if (dateA > dateB) {
-        return -1;
-      }
-      return 0;
-    })
-    .forEach(function(node) {
-      parent.appendChild(node)
-    });
-  }
+  //     if (dateA < dateB) {
+  //       return 1;
+  //     }
+  //     if (dateA > dateB) {
+  //       return -1;
+  //     }
+  //     return 0;
+  //   })
+  //   .forEach(function(node) {
+  //     parent.appendChild(node)
+  //   });
+  // }
 
-  //========================
+  // //========================
 
-  let completedBlock = document.querySelector('#completedTasks');
-  let compTaskList = completedBlock.querySelectorAll('.task');
+  // let compTaskList = completedBlock.querySelectorAll('.task');
 
-  if (compTaskList.length > 1) {
+  // if (compTaskList.length > 1) {
 
-    let compItemsArray = [];
-    let compParent = compTaskList[0].parentNode;
+  //   let compItemsArray = [];
+  //   let compParent = compTaskList[0].parentNode;
 
-    for (let i = 0; i < compTaskList.length; i++) {    
-      compItemsArray.push(compParent.removeChild(compTaskList[i]));
-    }
+  //   for (let i = 0; i < compTaskList.length; i++) {    
+  //     compItemsArray.push(compParent.removeChild(compTaskList[i]));
+  //   }
 
-    compItemsArray.sort(function(taskA, taskB) {
-      let timeA = taskA.querySelector('.time').textContent;
-      let timeB = taskB.querySelector('.time').textContent;
+  //   compItemsArray.sort(function(taskA, taskB) {
+  //     let timeA = taskA.querySelector('.time').textContent;
+  //     let timeB = taskB.querySelector('.time').textContent;
 
-      timeA = timeA.split(' ');
-      timeB = timeB.split(' ');
+  //     timeA = timeA.split(' ');
+  //     timeB = timeB.split(' ');
 
-      let hoursMinutesA = timeA[0].split(':');
-      let hoursMinutesB = timeB[0].split(':');
+  //     let hoursMinutesA = timeA[0].split(':');
+  //     let hoursMinutesB = timeB[0].split(':');
 
-      timeA = timeA[1].split('.');
-      timeB = timeB[1].split('.');
+  //     timeA = timeA[1].split('.');
+  //     timeB = timeB[1].split('.');
 
-      let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
-      let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
+  //     let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
+  //     let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
       
-      if (dateA < dateB) {
-        return 1;
-      }
-      if (dateA > dateB) {
-        return -1;
-      }
-      return 0;
-    })
-    .forEach(function(node) {
-      compParent.appendChild(node)
-    })
-  }
+  //     if (dateA < dateB) {
+  //       return 1;
+  //     }
+  //     if (dateA > dateB) {
+  //       return -1;
+  //     }
+  //     return 0;
+  //   })
+  //   .forEach(function(node) {
+  //     compParent.appendChild(node)
+  //   })
+  // }
 
   setStorageElements();
 
@@ -784,89 +548,90 @@ let downButton = document.querySelector('.down-button');
 
 downButton.addEventListener('click', () => {
 
-  getStorageElements();
+  pageArr = pageArr.reverse();
+
+  printElements(pageArr);
   
-  let taskList = toDoBlock.querySelectorAll('.task');
+  // let taskList = toDoBlock.querySelectorAll('.task');
 
-  if (taskList.length > 1) {
-    let itemsArray = [];
-    let parent = taskList[0].parentNode;
+  // if (taskList.length > 1) {
+  //   let itemsArray = [];
+  //   let parent = taskList[0].parentNode;
 
-    for (let i = 0; i < taskList.length; i++) {    
-      itemsArray.push(parent.removeChild(taskList[i]));
-    }
+  //   for (let i = 0; i < taskList.length; i++) {    
+  //     itemsArray.push(parent.removeChild(taskList[i]));
+  //   }
 
-    itemsArray.sort(function(taskA, taskB) {
-      let timeA = taskA.querySelector('.time').textContent;
-      let timeB = taskB.querySelector('.time').textContent;
+  //   itemsArray.sort(function(taskA, taskB) {
+  //     let timeA = taskA.querySelector('.time').textContent;
+  //     let timeB = taskB.querySelector('.time').textContent;
 
-      timeA = timeA.split(' ');
-      timeB = timeB.split(' ');
+  //     timeA = timeA.split(' ');
+  //     timeB = timeB.split(' ');
 
-      let hoursMinutesA = timeA[0].split(':');
-      let hoursMinutesB = timeB[0].split(':');
+  //     let hoursMinutesA = timeA[0].split(':');
+  //     let hoursMinutesB = timeB[0].split(':');
 
-      timeA = timeA[1].split('.');
-      timeB = timeB[1].split('.');
+  //     timeA = timeA[1].split('.');
+  //     timeB = timeB[1].split('.');
 
-      let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
-      let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
+  //     let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
+  //     let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
       
-      if (dateA < dateB) {
-        return -1;
-      }
-      if (dateA > dateB) {
-        return 1;
-      }
-      return 0;
-    })
-    .forEach(function(node) {
-      parent.appendChild(node)
-    });
-  }
+  //     if (dateA < dateB) {
+  //       return -1;
+  //     }
+  //     if (dateA > dateB) {
+  //       return 1;
+  //     }
+  //     return 0;
+  //   })
+  //   .forEach(function(node) {
+  //     parent.appendChild(node)
+  //   });
+  // }
 
-  //========================
+  // //========================
 
-  let completedBlock = document.querySelector('#completedTasks');
-  let compTaskList = completedBlock.querySelectorAll('.task');
+  // let compTaskList = completedBlock.querySelectorAll('.task');
 
-  if (compTaskList.length > 1) {
+  // if (compTaskList.length > 1) {
 
-    let compItemsArray = [];
-    let compParent = compTaskList[0].parentNode;
+  //   let compItemsArray = [];
+  //   let compParent = compTaskList[0].parentNode;
 
-    for (let i = 0; i < compTaskList.length; i++) {    
-      compItemsArray.push(compParent.removeChild(compTaskList[i]));
-    }
+  //   for (let i = 0; i < compTaskList.length; i++) {    
+  //     compItemsArray.push(compParent.removeChild(compTaskList[i]));
+  //   }
 
-    compItemsArray.sort(function(taskA, taskB) {
-      let timeA = taskA.querySelector('.time').textContent;
-      let timeB = taskB.querySelector('.time').textContent;
+  //   compItemsArray.sort(function(taskA, taskB) {
+  //     let timeA = taskA.querySelector('.time').textContent;
+  //     let timeB = taskB.querySelector('.time').textContent;
 
-      timeA = timeA.split(' ');
-      timeB = timeB.split(' ');
+  //     timeA = timeA.split(' ');
+  //     timeB = timeB.split(' ');
 
-      let hoursMinutesA = timeA[0].split(':');
-      let hoursMinutesB = timeB[0].split(':');
+  //     let hoursMinutesA = timeA[0].split(':');
+  //     let hoursMinutesB = timeB[0].split(':');
 
-      timeA = timeA[1].split('.');
-      timeB = timeB[1].split('.');
+  //     timeA = timeA[1].split('.');
+  //     timeB = timeB[1].split('.');
 
-      let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
-      let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
+  //     let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
+  //     let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
       
-      if (dateA < dateB) {
-        return -1;
-      }
-      if (dateA > dateB) {
-        return 1;
-      }
-      return 0;
-    })
-    .forEach(function(node) {
-      compParent.appendChild(node)
-    })
-  }
+  //     if (dateA < dateB) {
+  //       return -1;
+  //     }
+  //     if (dateA > dateB) {
+  //       return 1;
+  //     }
+  //     return 0;
+  //   })
+  //   .forEach(function(node) {
+  //     compParent.appendChild(node)
+  //   })
+  // }
 
   setStorageElements();
 
@@ -890,307 +655,229 @@ addTaskButton.addEventListener('click', () => {
 
 
 //=========================================================
-// обработчик событий кнопки переноса таска в статус завершённых
-function addCompleteButtomListener() {
-  let completeButton = document.querySelectorAll('.complete');
 
-  completeButton.forEach(function(btn) {
+function dateString(date) {
+  let str = '';
 
-    btn.addEventListener('click', () => {
-      
-      let task = btn.closest(".task");
+  str = date.toLocaleTimeString().slice(0,-3) + ' ' + date.toLocaleDateString();
 
-      btn.nextElementSibling.remove();
-      btn.remove();
+  return str;
+}
 
-      let completedBlock = document.querySelector('#completedTasks');
+//=========================================================
 
-      task.classList.add('completed');
+function addTaskBtnListener() {
 
-      let tasks = document.querySelectorAll('.task');
+  mainBlock.addEventListener('click', (e) => {
+    let target = e.target;
 
-      let currentTaskNumber;
-
-      for (let i = 0; i < tasks.length; i++) {
-        if (tasks.item(i) == task) {
-          currentTaskNumber = i;
-          break;
-        }
-      }
-
-      getStorageElements(currentTaskNumber);
-
-      completedBlock.appendChild(task);
-
-      setStorageElements();
-
-      toDoCounter();
-      completedCounter();
-    });
+    if (target.classList.contains('complete')) {
+      taskCompleter(target);
+    } else if (target.classList.contains('edit')) {
+      taskEditor(target);
+    } else if (target.classList.contains('delete')) {
+      taskDeleter(target);
+    }
   })
 }
 
-//===========
-// обработчик событий кнопки редактирования
-function addEditButtomListener() {
-  let editButton = document.querySelectorAll('.edit');
 
-  editButton.forEach(function(btn) {
+function taskCompleter(target) {
 
-    btn.addEventListener('click', () => {
+  let taskToComp = [...toDoBlock.querySelectorAll(".task")].find(li => li == target.closest(".task"));
 
-      let form = document.querySelector('#form1');
-      editTask = btn.closest(".task");
+  for (let i = 0; i < pageArr.length; i++) {
+    if (+taskToComp.classList[1] == pageArr[i].index) {
+      pageArr[i].isCompleted = true;
+      break;
+    }
+  }
 
-      let title = editTask.querySelector('.title');
-      let editTitleText = title.textContent;
+  setStorageElements();
+  printElements(pageArr);
 
-      let inputTitle = form.querySelector('#inputTitle');
-      inputTitle.setAttribute('value', editTitleText);
-
-
-      let text = editTask.querySelector('.text');
-      let editTextContent = text.textContent;
-
-      let inputText = form.querySelector('#inputText');
-      inputText.setAttribute('value', editTextContent);
-
-
-      let priority = editTask.querySelector('.priority');
-      let arr = priority.textContent.split(' ');
-
-      
-      editTime = editTask.querySelector('.time').textContent;
-      editColor = editTask.getAttribute('style');
-
-
-      switch (arr[0]) {
-        case 'Low':
-          let lowPriority = form.querySelector('.low');
-          lowPriority.setAttribute('checked','');
-
-          priorityValue = 'Low';
-          break;
-        case 'Medium':
-          let mediumPriority = form.querySelector('.medium');
-          mediumPriority.setAttribute('checked','');
-
-          priorityValue = 'Medium';
-          break;
-        case 'High':
-          let highPriority = form.querySelector('.high');
-          highPriority.setAttribute('checked','');
-
-          priorityValue = 'High';
-          break;
-      }
-      
-      // в закрытия формы по нажатию на "фон" modal, рычаг редактирования выключается
-      // let modal = document.querySelector('.modal-backdrop');
-      // modal.addEventListener('click', () => {
-      //   color = '';
-      //   // editToggle = false;
-      // })
-
-      let modalTitle = document.querySelector('#exampleModalLabel');
-      modalTitle.textContent = 'Edit task';
-
-      let modalButton = document.querySelector('#submit');
-      modalButton.textContent = 'Edit task';
-
-      editToggle = true;
-    });
-  })
+  toDoCounter();
+  completedCounter();
 }
 
-//===========
-// обработчик событий кнопки удаления
-function addDeleteButtomListener() {
-  let deleteButton = document.querySelectorAll('.delete');
 
-  deleteButton.forEach(function(btn) {
+function taskEditor(target) {
 
-    btn.addEventListener('click', () => {
-      let task = btn.closest(".task");
+  editTask = target.closest(".task");
 
-      let tasks = document.querySelectorAll('.task');
+  let taskToEdit = [...toDoBlock.querySelectorAll(".task")].find(li => li == editTask);
 
-      let currentTaskNumber;
+  for (let i = 0; i < pageArr.length; i++) {
+    if (+taskToEdit.classList[1] == pageArr[i].index) {
+      
+      form.querySelector('#inputTitle').setAttribute('value', pageArr[i].title);
+      form.querySelector('#inputText').setAttribute('value', pageArr[i].text);
 
-      for (let i = 0; i < tasks.length; i++) {
-        if (tasks.item(i) == task) {
-          currentTaskNumber = i;
-          break;
-        }
+      form.querySelector(`.${pageArr[i].priority.toLowerCase()}`).setAttribute('checked','');
+
+      if (pageArr[i].color && pageArr[i].color != "white") {
+        form.querySelector(`#${pageArr[i].color.toLowerCase()}`).setAttribute('checked','');
       }
 
-      getStorageElements(currentTaskNumber);
+      break;
+    }
+  }
 
-      setStorageElements();
+  let modalTitle = document.querySelector('#exampleModalLabel');
+  modalTitle.textContent = 'Edit task';
 
-      toDoCounter();
-      completedCounter();
-    });
-  })
+  let modalButton = document.querySelector('#submit');
+  modalButton.textContent = 'Edit task';
+
+  editToggle = true;
+}
+
+
+function taskDeleter(target) {
+
+  let taskToDel = [...mainBlock.querySelectorAll(".task")].find(li => li == target.closest(".task"));
+
+  for (let i = 0; i < pageArr.length; i++) {
+    if (+taskToDel.classList[1] == pageArr[i].index) {
+      pageArr.splice(i, 1);
+      break;
+    }
+  }
+
+  printElements(pageArr);
+
+  setStorageElements();
+
+  toDoCounter();
+  completedCounter();
 }
 
 //=========================================================
 // Счётчики текущих и завершённых тасков, запускаются при любых добавлениях, удалениях и перемешениях из категорий таксов
 function toDoCounter() {
+
+  if (pageArr == undefined) return;
   
-  let tasksAmount = toDoBlock.querySelectorAll('.task').length;
-  
-  let toDoTitle = document.querySelector('#to-do-title');
+  let tasksAmount = pageArr.filter(task => task.isCompleted == false).length;
+  let toDoTitle = document.querySelector('#toDoTitle');
 
   toDoTitle.textContent = `ToDo (${tasksAmount})`;
 }
 
 function completedCounter() {
-  let completedBlock = document.querySelector('#completedTasks');
-  let tasksAmount = completedBlock.querySelectorAll('.completed').length;
-  
-  let completedTitle = document.querySelector('#completed-title');
+
+  if (pageArr == undefined) return;
+
+  let tasksAmount = pageArr.filter(task => task.isCompleted == true).length;
+  let completedTitle = document.querySelector('#completedTitle');
 
   completedTitle.textContent = `Completed (${tasksAmount})`;
 }
 
 //=========================================================
 
-let colorBtns = document.querySelectorAll('.color-check');
+// let colorBtns = document.querySelectorAll('#colors');
 
-colorBtns.forEach(function(btn) {
+// colorBtns.forEach(function(btn) {
 
-  btn.addEventListener('click', () => {
-    let radio = btn.querySelector('input');
-    radio.setAttribute('checked','');
-  });
-})
+//   btn.addEventListener('click', () => {
+//     let radio = btn.querySelector('input');
+//     radio.setAttribute('checked','');
+//   });
+// })
 
+function addColorBtnsListener() {
 
+  let colorBtns = document.querySelector('.colorBtns');
+
+  colorBtns.addEventListener('click', (e) => {
+
+    let target = e.target;
+
+    target.closest('.color-check').querySelector('input').setAttribute('checked','');
+
+  })
+}
 
 //=========================================================
 // localStorage
 
-function getStorageElements(delTaskNum) {
+function getElements() {
 
   if (!localStorage.getItem('pageStorage')) return;
 
-  let completedBlock = document.querySelector('#completedTasks');
+  pageArr = JSON.parse(localStorage.getItem('pageStorage'));
+
+}
+
+function printElements(pageArr) {
 
   toDoBlock.innerHTML = '';
   completedBlock.innerHTML = '';
 
-  let pageStorage = JSON.parse(localStorage.getItem('pageStorage'));
+  for (let i = 0; i < pageArr.length; i++) {
+    
+    if (pageArr[i] == undefined) return;
 
-  for (let i = 0; i < pageStorage.length; i++) {
+    let obj = pageArr[i];
+    let newTask = document.createElement('li');
 
-    if (i == delTaskNum && editTaskData != '') {
-      let newTask = document.createElement('li');
+    let additionelBtns;
+
+    if (obj['isCompleted'] == false) {
       toDoBlock.append(newTask);
 
-      newTask.outerHTML = editTaskData;
+      additionelBtns = `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
+      <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n`;
 
-      editTaskData = '';
-      continue;
-    }
-
-    if (i == delTaskNum) continue;
-    
-    if (pageStorage[i] == undefined) return;
-
-    let obj = pageStorage[i][0];
-
-    if (obj['place'] == 'toDo') {
-
-      let newTask = document.createElement('li');
-      toDoBlock.append(newTask);
-
-      newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2');
-      newTask.innerHTML = `
-      <div class="w-100 mr-2">
-        <div class="d-flex w-100 justify-content-between">
-            <h5 class="title mb-1">${obj.title}</h5>
-            <div>
-                <small class="priority mr-2">${obj.priority} priority</small>
-                <small class="time">${obj.time}</small>
-            </div>
-        </div>
-        <p class="text mb-1 w-100">${obj.text}</p>
-      </div>
-      <div class="dropdown m-2 dropleft">
-        <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fas fa-ellipsis-v"></i>
-        </button>
-        <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
-            <button type="button" class="btn btn-success w-100 complete">Complete</button>
-            <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>
-            <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-        </div>
-      </div>`;
-
-      if (obj.style) {
-        newTask.setAttribute('style', obj.style);
-      }
-
-      // изменение цвета меню кнопок 
-      if (theme == 'dark') {
-        let menus = document.querySelectorAll('.dropdown-menu');
-
-        for (let i = 0; i < menus.length; i++) {
-          menus[i].style.background = '#505050';
-        }
-      }
-
-      continue;
-
-    } 
-    
-    if (obj['place'] == 'completed') {
-
-      let newTask = document.createElement('li');
+    } else if (obj['isCompleted'] == true) {
       completedBlock.append(newTask);
 
-      newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2', 'completed');
-      newTask.innerHTML = `
-      <div class="w-100 mr-2">
-        <div class="d-flex w-100 justify-content-between">
-            <h5 class="title mb-1">${obj.title}</h5>
-            <div>
-                <small class="priority mr-2">${obj.priority} priority</small>
-                <small class="time">${obj.time}</small>
-            </div>
+      additionelBtns = ''
+    }
 
-        </div>
-        <p class="text mb-1 w-100">${obj.text}</p>
+    newTask.classList.add('task', obj['index'], 'list-group-item', 'd-flex', 'w-100', 'mb-2');
+
+    if (theme == 'dark' && !obj['color'].includes('dark-')) {
+      newTask.classList.add('dark-' + obj['color']);
+    } else {
+      newTask.classList.add(obj['color']);
+    }
+
+    newTask.innerHTML = `
+    <div class="w-100 mr-2">
+      <div class="d-flex w-100 justify-content-between">
+          <h5 class="title mb-1">${obj.title}</h5>
+          <div>
+              <small class="priority mr-2">${obj.priority} priority</small>
+              <small class="time">${dateString(new Date(obj.time))}</small>
+          </div>
       </div>
-      <div class="dropdown m-2 dropleft">
-        <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fas fa-ellipsis-v"></i>
-        </button>
-        <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
-            <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-        </div>
-      </div>`;
+      <p class="text mb-1 w-100">${obj.text}</p>
+    </div>
+    <div class="dropdown m-2 dropleft">
+      <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-ellipsis-v"></i>
+      </button>
+      <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+          ${additionelBtns}
+          <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+      </div>
+    </div>`;
 
-      if (obj.style) {
-        newTask.setAttribute('style', obj.style);
-      }
+    if (obj.style) {
+      newTask.setAttribute('style', obj.style);
+    }
 
-      // изменение цвета меню кнопок 
-      if (theme == 'dark') {
-        let menus = document.querySelectorAll('.dropdown-menu');
+    // изменение цвета меню кнопок 
+    if (theme == 'dark') {
+      let menus = document.querySelectorAll('.dropdown-menu');
 
-        for (let i = 0; i < menus.length; i++) {
-          menus[i].style.background = '#505050';
-        }
+      for (let i = 0; i < menus.length; i++) {
+        menus[i].style.background = '#505050';
       }
     }
   }
-
-
-  addCompleteButtomListener();
-  addEditButtomListener();
-  addDeleteButtomListener();
 }
 
 
@@ -1199,60 +886,7 @@ window.addEventListener('unload', setStorageElements);
 function setStorageElements() {
 
   localStorage.removeItem('pageStorage');
-
-  let tasks = document.querySelectorAll('.task');
-  let pageStorage = [];
-
-  for (let i = 0; i < tasks.length; i++) {
-
-    let place = '';
-
-    if (tasks[i].classList.contains('completed')) {
-      place = 'completed';
-    } else {
-      place = 'toDo';
-    }
-
-
-    let taskPriorityValue;
-    let priority = tasks[i].querySelector('.priority');
-    let priorityArr = priority.textContent.split(' ');
-
-    switch (priorityArr[0]) {
-      case 'Low':
-
-        taskPriorityValue = 'Low';
-        break;
-
-      case 'Medium':
-
-        taskPriorityValue = 'Medium';
-        break;
-
-      case 'High':
-
-        taskPriorityValue = 'High';
-        break;
-    }
-
-
-    let taskStorage = {
-      "place": place,
-      "title": tasks[i].querySelector('.title').textContent,
-      "priority": taskPriorityValue,
-      "time": tasks[i].querySelector('.time').textContent,
-      "text": tasks[i].querySelector('.text').textContent,
-    };
-
-    
-    if (tasks[i].getAttribute('style')) {
-      taskStorage.style = tasks[i].getAttribute('style');
-    };
-
-    pageStorage.push([taskStorage]);
-  }
-
-  localStorage.setItem('pageStorage', JSON.stringify(pageStorage));
+  localStorage.setItem('pageStorage', JSON.stringify(pageArr));
 }
 
 
@@ -1262,3 +896,8 @@ function setThemeColor() {
   localStorage.setItem('theme', theme);
 }
 
+window.addEventListener('unload', setIndex());
+
+function setIndex() {
+  localStorage.setItem('index', index);
+}

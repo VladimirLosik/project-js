@@ -16,6 +16,16 @@
     cursor: pointer;
 }
 
+.white {
+    background-color: #fff!important;
+    color: black;
+}
+
+.dark-white {
+    background-color: rgb(53, 53, 53)!important;
+    color: #e5e5e5;
+}
+
 .red {
     border: 1px solid #dd3243; 
     background-color: rgb(255, 200, 200)!important;
@@ -84,4 +94,22 @@
 
 .dark-x {
     color: #fff!important;
+}
+
+.dark-main {
+    background-color: #111111;
+    color: #e5e5e5;
+}
+
+.dark-nav {
+    background-color: #353535;
+}
+
+.light-main {
+    background-color: #fff;
+    color: black;
+}
+
+.light-nav {
+    background-color: #f8f9fa;
 }
