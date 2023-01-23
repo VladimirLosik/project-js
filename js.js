@@ -4,7 +4,6 @@ let completedBlock = document.querySelector('#completedTasks');
 let form = document.querySelector('#form1');
 
 let pageArr = [];
-
 let index;
 
 if (localStorage.getItem('index')) {
@@ -14,9 +13,6 @@ if (localStorage.getItem('index')) {
 }
 
 let editToggle = false;
-
-let editTime = '';
-let editColor = '';
 
 let theme;
 
@@ -41,13 +37,11 @@ if (localStorage.getItem('pageStorage')) {
     "index": index,
   }
 
+  pageArr.push(taskObj);
   index++;
 
-  setIndex();
-
-  pageArr.push(taskObj);
-
   setStorageElements();
+  setIndex();
 }
 
 if (pageArr != undefined) {
@@ -55,7 +49,6 @@ if (pageArr != undefined) {
 }
 
 // включение обработчиков на кнопках Complete, Edit и Delete
-
 addThemeBtnListener();
 addTaskBtnListener();
 addColorBtnsListener();
@@ -73,57 +66,14 @@ if (theme == 'dark') {
   darkTheme();
 }
 
-// объект с цветами 
-let colors = {
-  'red': '#dd3243',
-  'redLightBack': 'rgb(255, 200, 200)',
-  'redDarkBack': 'rgb(100, 50, 50)',
-
-  'orange': '#ffc201',
-  'orangeLightBack': 'rgb(255, 225, 150)',
-  'orangeDarkBack': 'rgb(100, 70, 50)',
-
-  'green': '#23a843',
-  'greenLightBack': 'rgb(220, 255, 200)',
-  'greenDarkBack': 'rgb(50, 80, 50)',
-
-  'turquoise': '#0fa3b9',
-  'turquoiseLightBack': 'rgb(210, 255, 240)',
-  'turquoiseDarkBack': 'rgb(50, 80, 75)',
-
-  'blue': '#007cff',
-  'blueLightBack': 'rgb(190, 230, 255)',
-  'blueDarkBack': 'rgb(35, 50, 100)',
-}
-
-// группа кнопок для выбора цвета, выбранный цвет и бэкграунд
-let colorSelect = document.querySelector('#colors');
-let color = '';
-let backColor = '';
-
-// обработчик сохраняет любое нажатие по кнопкам цвета
-colorSelect.addEventListener('click', (e) => {
-  if (e.target.id) color = e.target.id;
-})
-
-// обработчики для обнуления переменной с цветом в случае закрытия формы и отключения рычага редактирования
-let closeX = document.querySelector('#close');
-closeX.addEventListener('click', () => {
-  color = '';
-  editToggle = false;
-})
-
-let closeButton = document.querySelector('#close-button');
-closeButton.addEventListener('click', () => {
-  color = '';
-  editToggle = false;
-})
-
 
 // обработчик нажатия submit модального окна (имеет ветку создания таска и редактирования)
 let editTaskData = '';
 
-form.addEventListener('submit', (e) => {
+let submitBtn = document.querySelector('#submit');
+
+submitBtn.addEventListener('click', (e) => {
+  
   e.preventDefault(); 
 
   let formData = new FormData(form);
@@ -156,30 +106,7 @@ form.addEventListener('submit', (e) => {
 
     formReset();
 
-    //===========
-    // блок закрытия модального окна
-    modalBackdrop.remove();  
-    modal.classList.remove('show');
-
-    setTimeout(modalRemove(modal), 500);
-
-    // отключение "рычага" редактирования, чтобы следующий вызов модального окна шёл по ветке создания таска (если только
-    // не будет нажата кнопка edit, тогда "рычаг" опять включится
     editToggle = false;
-
-    color = '';
-
-
-    let tasks = document.querySelectorAll('.task');
-
-    let currentTaskNumber;
-
-    for (let i = 0; i < tasks.length; i++) {
-      if (tasks.item(i) == editTask) {
-        currentTaskNumber = i;
-        break;
-      }
-    }
 
     setStorageElements();
 
@@ -219,8 +146,6 @@ form.addEventListener('submit', (e) => {
   //=========================================================
   // блок для очистки данных полей после отправки формы
   formReset();
-  
-  color = '';
 
   setStorageElements();
 
@@ -705,16 +630,6 @@ function completedCounter() {
 
 //=========================================================
 
-// let colorBtns = document.querySelectorAll('#colors');
-
-// colorBtns.forEach(function(btn) {
-
-//   btn.addEventListener('click', () => {
-//     let radio = btn.querySelector('input');
-//     radio.setAttribute('checked','');
-//   });
-// })
-
 function addColorBtnsListener() {
 
   let colorBtns = document.querySelector('.colorBtns');
@@ -722,6 +637,9 @@ function addColorBtnsListener() {
   colorBtns.addEventListener('click', (e) => {
 
     let target = e.target;
+
+    let formColorBtns = form.querySelectorAll('.color-radio');
+    formColorBtns.forEach(btn => btn.removeAttribute('checked'));
 
     target.closest('.color-check').querySelector('input').setAttribute('checked','');
 
