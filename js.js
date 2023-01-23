@@ -49,7 +49,7 @@ if (pageArr != undefined) {
 }
 
 // включение обработчиков на кнопках Complete, Edit и Delete
-addThemeBtnListener();
+addNavbarBtnListener();
 addTaskBtnListener();
 addColorBtnsListener();
 
@@ -77,10 +77,6 @@ submitBtn.addEventListener('click', (e) => {
   e.preventDefault(); 
 
   let formData = new FormData(form);
-
-  let modalBackdrop = document.querySelector('.modal-backdrop');
-  let modal = document.querySelector('.modal');
-
   let date = new Date();
 
   //=========================================================
@@ -102,13 +98,12 @@ submitBtn.addEventListener('click', (e) => {
       }
     }  
   
-    printElements(pageArr)
+    printElements(pageArr);
 
     formReset();
+    setStorageElements();
 
     editToggle = false;
-
-    setStorageElements();
 
     return;
   }
@@ -127,27 +122,15 @@ submitBtn.addEventListener('click', (e) => {
 
   taskObj.color = formData.get('colors') ? formData.get('colors') : "white";
 
-  index++;
-
-  setIndex();
-
   pageArr.push(taskObj);
+  index++;
 
   printElements(pageArr);
 
-  //=========================================================
-  // закрытие модального окна 
-  modalBackdrop.remove();  
-  modal.classList.remove('show');
-
-  // с setом хотя бы меняется курсор, но клик всё равно холостой)
-  setTimeout(modalRemove(modal), 500);
-
-  //=========================================================
-  // блок для очистки данных полей после отправки формы
   formReset();
 
   setStorageElements();
+  setIndex();
 
   toDoCounter();
   completedCounter();
@@ -155,34 +138,31 @@ submitBtn.addEventListener('click', (e) => {
 
 //=========================================================
 //=========================================================
-// закрытие модального окна
-function modalRemove(modal) {
-  document.body.classList.remove('modal-open');
-  document.body.removeAttribute('style');
 
-  modal.setAttribute('style', 'display: none;');
-  modal.setAttribute('aria-hidden', 'true');
-  modal.removeAttribute('aria-modal');
-}
+function addNavbarBtnListener() {
 
-//=========================================================
+  let navbar = document.querySelector('.navbar');
 
-function addThemeBtnListener() {
-
-  let themeBtns = document.querySelector('.dropdown-menu-right');
-
-  themeBtns.addEventListener('click', (e) => {
+  navbar.addEventListener('click', (e) => {
     let target = e.target;
+    let targetBtn = target.closest('button');
 
-    if (target.classList.contains('btn-light')) {
+    if (!targetBtn) return;
+
+    if (targetBtn.classList.contains('btn-light')) {
       lightTheme();
-    } else if (target.classList.contains('btn-dark')) {
+    } else if (targetBtn.classList.contains('btn-dark')) {
       darkTheme();
+    } else if (targetBtn.classList.contains('up-button')) {
+      upSorter();
+    } else if (targetBtn.classList.contains('down-button')) {
+      downSorter();
+    } else if (targetBtn.classList.contains('addBtn')) {
+      addElemEditer();
     }
   })
 }
 
-//=========================================================
 
 function lightTheme() {
 
@@ -241,7 +221,6 @@ function lightTheme() {
   setThemeColor();
 };
 
-//===========
 
 function darkTheme() {
 
@@ -301,201 +280,27 @@ function darkTheme() {
   setThemeColor();
 }
 
-//=========================================================
-// обработчики нажатий на кнопки сортировки по датам
-let upButton = document.querySelector('.up-button');
 
-upButton.addEventListener('click', () => {
+function upSorter() {
 
-  pageArr = pageArr.reverse();
-
-  printElements(pageArr)
-  
-  // let taskList = toDoBlock.querySelectorAll('.task');
-  
-  // if (taskList.length > 1) {
-  //   let itemsArray = [];
-  //   let parent = taskList[0].parentNode;
-
-  //   for (let i = 0; i < taskList.length; i++) {    
-  //     itemsArray.push(parent.removeChild(taskList[i]));
-  //   }
-
-  //   itemsArray.sort(function(taskA, taskB) {
-  //     let timeA = taskA.querySelector('.time').textContent;
-  //     let timeB = taskB.querySelector('.time').textContent;
-
-  //     timeA = timeA.split(' ');
-  //     timeB = timeB.split(' ');
-
-  //     let hoursMinutesA = timeA[0].split(':');
-  //     let hoursMinutesB = timeB[0].split(':');
-
-  //     timeA = timeA[1].split('.');
-  //     timeB = timeB[1].split('.');
-
-  //     let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
-  //     let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
-      
-  //     if (dateA < dateB) {
-  //       return 1;
-  //     }
-  //     if (dateA > dateB) {
-  //       return -1;
-  //     }
-  //     return 0;
-  //   })
-  //   .forEach(function(node) {
-  //     parent.appendChild(node)
-  //   });
-  // }
-
-  // //========================
-
-  // let compTaskList = completedBlock.querySelectorAll('.task');
-
-  // if (compTaskList.length > 1) {
-
-  //   let compItemsArray = [];
-  //   let compParent = compTaskList[0].parentNode;
-
-  //   for (let i = 0; i < compTaskList.length; i++) {    
-  //     compItemsArray.push(compParent.removeChild(compTaskList[i]));
-  //   }
-
-  //   compItemsArray.sort(function(taskA, taskB) {
-  //     let timeA = taskA.querySelector('.time').textContent;
-  //     let timeB = taskB.querySelector('.time').textContent;
-
-  //     timeA = timeA.split(' ');
-  //     timeB = timeB.split(' ');
-
-  //     let hoursMinutesA = timeA[0].split(':');
-  //     let hoursMinutesB = timeB[0].split(':');
-
-  //     timeA = timeA[1].split('.');
-  //     timeB = timeB[1].split('.');
-
-  //     let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
-  //     let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
-      
-  //     if (dateA < dateB) {
-  //       return 1;
-  //     }
-  //     if (dateA > dateB) {
-  //       return -1;
-  //     }
-  //     return 0;
-  //   })
-  //   .forEach(function(node) {
-  //     compParent.appendChild(node)
-  //   })
-  // }
-
-  setStorageElements();
-
-})
-  
-//========================
-
-let downButton = document.querySelector('.down-button');
-
-downButton.addEventListener('click', () => {
-
-  pageArr = pageArr.reverse();
+  pageArr = pageArr.sort((a, b) => new Date(b.time) - new Date(a.time));
 
   printElements(pageArr);
-  
-  // let taskList = toDoBlock.querySelectorAll('.task');
-
-  // if (taskList.length > 1) {
-  //   let itemsArray = [];
-  //   let parent = taskList[0].parentNode;
-
-  //   for (let i = 0; i < taskList.length; i++) {    
-  //     itemsArray.push(parent.removeChild(taskList[i]));
-  //   }
-
-  //   itemsArray.sort(function(taskA, taskB) {
-  //     let timeA = taskA.querySelector('.time').textContent;
-  //     let timeB = taskB.querySelector('.time').textContent;
-
-  //     timeA = timeA.split(' ');
-  //     timeB = timeB.split(' ');
-
-  //     let hoursMinutesA = timeA[0].split(':');
-  //     let hoursMinutesB = timeB[0].split(':');
-
-  //     timeA = timeA[1].split('.');
-  //     timeB = timeB[1].split('.');
-
-  //     let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
-  //     let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
-      
-  //     if (dateA < dateB) {
-  //       return -1;
-  //     }
-  //     if (dateA > dateB) {
-  //       return 1;
-  //     }
-  //     return 0;
-  //   })
-  //   .forEach(function(node) {
-  //     parent.appendChild(node)
-  //   });
-  // }
-
-  // //========================
-
-  // let compTaskList = completedBlock.querySelectorAll('.task');
-
-  // if (compTaskList.length > 1) {
-
-  //   let compItemsArray = [];
-  //   let compParent = compTaskList[0].parentNode;
-
-  //   for (let i = 0; i < compTaskList.length; i++) {    
-  //     compItemsArray.push(compParent.removeChild(compTaskList[i]));
-  //   }
-
-  //   compItemsArray.sort(function(taskA, taskB) {
-  //     let timeA = taskA.querySelector('.time').textContent;
-  //     let timeB = taskB.querySelector('.time').textContent;
-
-  //     timeA = timeA.split(' ');
-  //     timeB = timeB.split(' ');
-
-  //     let hoursMinutesA = timeA[0].split(':');
-  //     let hoursMinutesB = timeB[0].split(':');
-
-  //     timeA = timeA[1].split('.');
-  //     timeB = timeB[1].split('.');
-
-  //     let dateA = new Date(timeA[2], timeA[1] - 1, timeA[0], hoursMinutesA[0], hoursMinutesA[1]);
-  //     let dateB = new Date(timeB[2], timeB[1] - 1, timeB[0], hoursMinutesB[0], hoursMinutesB[1]);
-      
-  //     if (dateA < dateB) {
-  //       return -1;
-  //     }
-  //     if (dateA > dateB) {
-  //       return 1;
-  //     }
-  //     return 0;
-  //   })
-  //   .forEach(function(node) {
-  //     compParent.appendChild(node)
-  //   })
-  // }
-
   setStorageElements();
+}
 
-})
 
-//=========================================================
-// обработчик, изменяющий текст заголовка и кнопки модального окна, если идёт процесс создания нового элемента
-let addTaskButton = document.querySelector('#addTaskButton');
+function downSorter() {
 
-addTaskButton.addEventListener('click', () => {
+  pageArr = pageArr.sort((a, b) => new Date(a.time) - new Date(b.time));
+
+  printElements(pageArr);
+  setStorageElements();
+}
+
+
+function addElemEditer() {
+
   formReset();
 
   editToggle = false;
@@ -505,7 +310,8 @@ addTaskButton.addEventListener('click', () => {
 
   let modalButton = document.querySelector('#submit');
   modalButton.textContent = 'Add task';
-})
+
+}
 
 
 //=========================================================
@@ -740,7 +546,7 @@ function printElements(pageArr) {
 }
 
 
-window.addEventListener('unload', setStorageElements);
+window.addEventListener('unload', setStorageElements());
 
 function setStorageElements() {
 
