@@ -13,7 +13,6 @@ if (localStorage.getItem('index')) {
 }
 
 let editToggle = false;
-
 let theme;
 
 if (localStorage.getItem('theme')) {
@@ -22,6 +21,9 @@ if (localStorage.getItem('theme')) {
   theme = 'light';
 }
 
+if (theme == 'dark') {
+  darkTheme();
+}
 
 // функция для загрузки информации из localStorage
 if (localStorage.getItem('pageStorage')) {
@@ -59,13 +61,6 @@ completedCounter();
 
 // переменная хранит информацию о том, какой именно таск редактируется 
 let editTask;
-
-//=========================================================
-
-if (theme == 'dark') {
-  darkTheme();
-}
-
 
 // обработчик нажатия submit модального окна (имеет ветку создания таска и редактирования)
 let editTaskData = '';
