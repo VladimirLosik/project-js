@@ -444,8 +444,9 @@ function addColorBtnsListener() {
     let formColorBtns = form.querySelectorAll('.color-radio');
     formColorBtns.forEach(btn => btn.removeAttribute('checked'));
 
-    target.closest('.color-check').querySelector('input').setAttribute('checked','');
-
+    if (target.closest('.color-check')) {
+      target.closest('.color-check').querySelector('input').setAttribute('checked','');
+    }
   })
 }
 
@@ -469,7 +470,6 @@ function getElements() {
   if (!localStorage.getItem('pageStorage')) return;
 
   pageArr = JSON.parse(localStorage.getItem('pageStorage'));
-
 }
 
 function printElements(pageArr) {
