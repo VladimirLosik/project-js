@@ -439,10 +439,10 @@ function addColorBtnsListener() {
 
     let target = e.target;
 
-    let formColorBtns = form.querySelectorAll('.color-radio');
-    formColorBtns.forEach(btn => btn.removeAttribute('checked'));
-
     if (target.closest('.color-check')) {
+      let formColorBtns = form.querySelectorAll('.color-radio');
+      formColorBtns.forEach(btn => btn.removeAttribute('checked'));
+
       target.closest('.color-check').querySelector('input').setAttribute('checked','');
     }
   })
