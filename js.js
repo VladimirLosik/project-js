@@ -472,11 +472,11 @@ function getElements() {
 
 function printElements(pageArr) {
 
-  if (!pageArr) return;
-  if (pageArr.length < 1) return;
-
   toDoBlock.innerHTML = '';
   completedBlock.innerHTML = '';
+
+  if (!pageArr) return;
+  if (pageArr.length < 1) return;
 
   for (let i = 0; i < pageArr.length; i++) {
     
