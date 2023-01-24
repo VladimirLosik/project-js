@@ -65,9 +65,7 @@ let editTask;
 // обработчик нажатия submit модального окна (имеет ветку создания таска и редактирования)
 let editTaskData = '';
 
-let submitBtn = document.querySelector('#submit');
-
-submitBtn.addEventListener('click', (e) => {
+form.addEventListener('submit', (e) => {
   
   e.preventDefault(); 
 
@@ -100,6 +98,8 @@ submitBtn.addEventListener('click', (e) => {
 
     editToggle = false;
 
+    $('#exampleModal').modal('hide');
+
     return;
   }
 
@@ -129,6 +129,8 @@ submitBtn.addEventListener('click', (e) => {
 
   toDoCounter();
   completedCounter();
+
+  $('#exampleModal').modal('hide');
 });
 
 //=========================================================
