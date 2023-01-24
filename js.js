@@ -15,17 +15,6 @@ if (localStorage.getItem('index')) {
 let editToggle = false;
 let theme;
 
-if (localStorage.getItem('theme')) {
-  theme = localStorage.getItem('theme')
-} else {
-  theme = 'light';
-}
-
-if (theme == 'dark') {
-  darkTheme();
-}
-
-// функция для загрузки информации из localStorage
 if (localStorage.getItem('pageStorage')) {
   getElements();
 } else {
@@ -46,7 +35,16 @@ if (localStorage.getItem('pageStorage')) {
   setIndex();
 }
 
-if (pageArr != undefined) {
+if (localStorage.getItem('theme')) {
+  theme = localStorage.getItem('theme')
+} else {
+  theme = 'light';
+}
+
+
+if (theme == 'dark' && pageArr != undefined) {
+  darkTheme();
+} else {
   printElements(pageArr);
 }
 
@@ -179,27 +177,27 @@ function lightTheme() {
     field.classList.remove('dark-field');
   })
 
-  let closeX = document.querySelector('.closeX');
+  let closeX = modalContent.querySelector('.closeX');
   closeX.classList.remove('dark-x');
 
 
-  let redBtn = document.querySelector('.dark-red');
+  let redBtn = modalContent.querySelector('.dark-red');
   redBtn.classList.add('red');
   redBtn.classList.remove('dark-red');
 
-  let orangeBtn = document.querySelector('.dark-orange');
+  let orangeBtn = modalContent.querySelector('.dark-orange');
   orangeBtn.classList.add('orange');
   orangeBtn.classList.remove('dark-orange');
 
-  let greenBtn = document.querySelector('.dark-green');
+  let greenBtn = modalContent.querySelector('.dark-green');
   greenBtn.classList.add('green');
   greenBtn.classList.remove('dark-green');
 
-  let turquoiseBtn = document.querySelector('.dark-turquoise');
+  let turquoiseBtn = modalContent.querySelector('.dark-turquoise');
   turquoiseBtn.classList.add('turquoise');
   turquoiseBtn.classList.remove('dark-turquoise');
 
-  let blueBtn = document.querySelector('.dark-blue');
+  let blueBtn = modalContent.querySelector('.dark-blue');
   blueBtn.classList.add('blue');
   blueBtn.classList.remove('dark-blue');
 
@@ -225,8 +223,6 @@ function darkTheme() {
 
   theme = 'dark';
 
-  printElements(pageArr);
-
   // блок стабильных видоизменений модального окна
   let modalContent = document.querySelector('.modal-content');
   modalContent.classList.remove('light-modal');
@@ -237,26 +233,26 @@ function darkTheme() {
     field.classList.add('dark-field');
   })
 
-  let closeX = document.querySelector('.closeX');
+  let closeX = modalContent.querySelector('.closeX');
   closeX.classList.add('dark-x'); 
 
-  let redBtn = document.querySelector('.red');
+  let redBtn = modalContent.querySelector('.red');
   redBtn.classList.add('dark-red');
   redBtn.classList.remove('red');
 
-  let orangeBtn = document.querySelector('.orange');
+  let orangeBtn = modalContent.querySelector('.orange');
   orangeBtn.classList.add('dark-orange');
   orangeBtn.classList.remove('orange');
 
-  let greenBtn = document.querySelector('.green');
+  let greenBtn = modalContent.querySelector('.green');
   greenBtn.classList.add('dark-green');
   greenBtn.classList.remove('green');
 
-  let turquoiseBtn = document.querySelector('.turquoise');
+  let turquoiseBtn = modalContent.querySelector('.turquoise');
   turquoiseBtn.classList.add('dark-turquoise');
   turquoiseBtn.classList.remove('turquoise');
 
-  let blueBtn = document.querySelector('.blue');
+  let blueBtn = modalContent.querySelector('.blue');
   blueBtn.classList.add('dark-blue');
   blueBtn.classList.remove('blue');
 
@@ -270,6 +266,8 @@ function darkTheme() {
 
   navbar.classList.add('dark-nav');
   navbar.classList.remove('bg-light', 'light-nav');
+
+  printElements(pageArr);
 
   // сохранение
 
@@ -474,6 +472,9 @@ function getElements() {
 
 function printElements(pageArr) {
 
+  if (!pageArr) return;
+  if (pageArr.length < 1) return;
+
   toDoBlock.innerHTML = '';
   completedBlock.innerHTML = '';
 
@@ -546,8 +547,6 @@ function printElements(pageArr) {
 window.addEventListener('unload', setStorageElements());
 
 function setStorageElements() {
-
-  localStorage.removeItem('pageStorage');
   localStorage.setItem('pageStorage', JSON.stringify(pageArr));
 }
 
