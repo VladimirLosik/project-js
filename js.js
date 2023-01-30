@@ -3,13 +3,11 @@ let toDoBlock = document.querySelector('#currentTasks');
 let completedBlock = document.querySelector('#completedTasks');
 let form = document.querySelector('#form1');
 
-let pageArr = [];
+let taskObjLisk = [];
 let index;
 
 if (localStorage.getItem('index')) {
-  index = +localStorage.getItem('index')
-} else {
-  index = 0;
+  index = +localStorage.getItem('index');
 }
 
 let editToggle = false;
@@ -28,7 +26,7 @@ if (localStorage.getItem('pageStorage')) {
     "index": index,
   }
 
-  pageArr.push(taskObj);
+  taskObjLisk.push(taskObj);
   index++;
 
   setStorageElements();
@@ -36,17 +34,14 @@ if (localStorage.getItem('pageStorage')) {
 }
 
 if (localStorage.getItem('theme')) {
-  theme = localStorage.getItem('theme')
-} else {
-  theme = 'light';
-}
+  theme = localStorage.getItem('theme') || 'light'
+} 
 
-
-if (theme == 'dark' && pageArr != undefined) {
-  darkTheme();
-} else {
-  printElements(pageArr);
-}
+// ?
+// if (theme === 'dark' && taskObjLisk != undefined) {
+//   darkTheme();
+// } 
+printElements(taskObjLisk);
 
 // включение обработчиков на кнопках Complete, Edit и Delete
 addNavbarBtnListener();
@@ -73,23 +68,23 @@ form.addEventListener('submit', (e) => {
   //=========================================================
   // ответвление для редактирования таска
 
-  if (editToggle == true) {
+  if (editToggle === true) {
 
-    for (let i = 0; i < pageArr.length; i++) {
-      if (+editTask.classList[1] == pageArr[i].index) {
-        pageArr[i].title = formData.get('inputTitle');
-        pageArr[i].priority = formData.get('priority');
-        pageArr[i].text = formData.get('inputText');
+    for (let i = 0; i < taskObjLisk.length; i++) {
+      if (+editTask.classList[1] === taskObjLisk[i].index) {
+        taskObjLisk[i].title = formData.get('inputTitle');
+        taskObjLisk[i].priority = formData.get('priority');
+        taskObjLisk[i].text = formData.get('inputText');
 
         if (formData.get('colors')) {
-          pageArr[i].color = formData.get('colors');
+          taskObjLisk[i].color = formData.get('colors');
         } 
 
         break;
       }
     }  
   
-    printElements(pageArr);
+    printElements(taskObjLisk);
 
     formReset();
     setStorageElements();
@@ -115,10 +110,10 @@ form.addEventListener('submit', (e) => {
 
   taskObj.color = formData.get('colors') ? formData.get('colors') : "white";
 
-  pageArr.push(taskObj);
+  taskObjLisk.push(taskObj);
   index++;
 
-  printElements(pageArr);
+  printElements(taskObjLisk);
 
   formReset();
 
@@ -161,11 +156,11 @@ function addNavbarBtnListener() {
 
 function lightTheme() {
 
-  if (theme == 'light') return;
+  if (theme === 'light') return;
 
   theme = 'light';
 
-  printElements(pageArr);
+  // printElements(taskObjLisk);
 
   // блок стабильных видоизменений модального окна
   let modalContent = document.querySelector('.modal-content');
@@ -212,14 +207,14 @@ function lightTheme() {
 
   // сохранение
 
-  setStorageElements();
+  // setStorageElements();
   setThemeColor();
 };
 
 
 function darkTheme() {
 
-  if (theme == 'dark' && !document.querySelector('.bg-light')) return;
+  if (theme === 'dark' && !document.querySelector('.bg-light')) return;
 
   theme = 'dark';
 
@@ -267,7 +262,7 @@ function darkTheme() {
   navbar.classList.add('dark-nav');
   navbar.classList.remove('bg-light', 'light-nav');
 
-  printElements(pageArr);
+  printElements(taskObjLisk);
 
   // сохранение
 
@@ -278,18 +273,18 @@ function darkTheme() {
 
 function upSorter() {
 
-  pageArr = pageArr.sort((a, b) => new Date(b.time) - new Date(a.time));
+  taskObjLisk = taskObjLisk.sort((a, b) => new Date(b.time) - new Date(a.time));
 
-  printElements(pageArr);
+  printElements(taskObjLisk);
   setStorageElements();
 }
 
 
 function downSorter() {
 
-  pageArr = pageArr.sort((a, b) => new Date(a.time) - new Date(b.time));
+  taskObjLisk = taskObjLisk.sort((a, b) => new Date(a.time) - new Date(b.time));
 
-  printElements(pageArr);
+  printElements(taskObjLisk);
   setStorageElements();
 }
 
@@ -339,17 +334,17 @@ function addTaskBtnListener() {
 
 function taskCompleter(target) {
 
-  let taskToComp = [...toDoBlock.querySelectorAll(".task")].find(li => li == target.closest(".task"));
+  let taskToComp = [...toDoBlock.querySelectorAll(".task")].find(li => li === target.closest(".task"));
 
-  for (let i = 0; i < pageArr.length; i++) {
-    if (+taskToComp.classList[1] == pageArr[i].index) {
-      pageArr[i].isCompleted = true;
+  for (let i = 0; i < taskObjLisk.length; i++) {
+    if (+taskToComp.classList[1] === taskObjLisk[i].index) {
+      taskObjLisk[i].isCompleted = true;
       break;
     }
   }
 
   setStorageElements();
-  printElements(pageArr);
+  printElements(taskObjLisk);
 
   toDoCounter();
   completedCounter();
@@ -360,18 +355,18 @@ function taskEditor(target) {
 
   editTask = target.closest(".task");
 
-  let taskToEdit = [...toDoBlock.querySelectorAll(".task")].find(li => li == editTask);
+  let taskToEdit = [...toDoBlock.querySelectorAll(".task")].find(li => li === editTask);
 
-  for (let i = 0; i < pageArr.length; i++) {
-    if (+taskToEdit.classList[1] == pageArr[i].index) {
+  for (let i = 0; i < taskObjLisk.length; i++) {
+    if (+taskToEdit.classList[1] === taskObjLisk[i].index) {
       
-      form.querySelector('#inputTitle').setAttribute('value', pageArr[i].title);
-      form.querySelector('#inputText').setAttribute('value', pageArr[i].text);
+      form.querySelector('#inputTitle').setAttribute('value', taskObjLisk[i].title);
+      form.querySelector('#inputText').setAttribute('value', taskObjLisk[i].text);
 
-      form.querySelector(`.${pageArr[i].priority.toLowerCase()}`).setAttribute('checked','');
+      form.querySelector(`.${taskObjLisk[i].priority.toLowerCase()}`).setAttribute('checked','');
 
-      if (pageArr[i].color && pageArr[i].color != "white") {
-        form.querySelector(`#${pageArr[i].color.toLowerCase()}`).setAttribute('checked','');
+      if (taskObjLisk[i].color && taskObjLisk[i].color != "white") {
+        form.querySelector(`#${taskObjLisk[i].color.toLowerCase()}`).setAttribute('checked','');
       }
 
       break;
@@ -390,16 +385,16 @@ function taskEditor(target) {
 
 function taskDeleter(target) {
 
-  let taskToDel = [...mainBlock.querySelectorAll(".task")].find(li => li == target.closest(".task"));
+  let taskToDel = [...mainBlock.querySelectorAll(".task")].find(li => li === target.closest(".task"));
 
-  for (let i = 0; i < pageArr.length; i++) {
-    if (+taskToDel.classList[1] == pageArr[i].index) {
-      pageArr.splice(i, 1);
+  for (let i = 0; i < taskObjLisk.length; i++) {
+    if (+taskToDel.classList[1] === taskObjLisk[i].index) {
+      taskObjLisk.splice(i, 1);
       break;
     }
   }
 
-  printElements(pageArr);
+  printElements(taskObjLisk);
 
   setStorageElements();
 
@@ -411,9 +406,9 @@ function taskDeleter(target) {
 // Счётчики текущих и завершённых тасков, запускаются при любых добавлениях, удалениях и перемешениях из категорий таксов
 function toDoCounter() {
 
-  if (pageArr == undefined) return;
+  if (taskObjLisk === undefined) return;
   
-  let tasksAmount = pageArr.filter(task => task.isCompleted == false).length;
+  let tasksAmount = taskObjLisk.filter(task => task.isCompleted === false).length;
   let toDoTitle = document.querySelector('#toDoTitle');
 
   toDoTitle.textContent = `ToDo (${tasksAmount})`;
@@ -421,9 +416,9 @@ function toDoCounter() {
 
 function completedCounter() {
 
-  if (pageArr == undefined) return;
+  if (taskObjLisk === undefined) return;
 
-  let tasksAmount = pageArr.filter(task => task.isCompleted == true).length;
+  let tasksAmount = taskObjLisk.filter(task => task.isCompleted === true).length;
   let completedTitle = document.querySelector('#completedTitle');
 
   completedTitle.textContent = `Completed (${tasksAmount})`;
@@ -465,35 +460,33 @@ function formReset() {
 
 function getElements() {
 
-  if (!localStorage.getItem('pageStorage')) return;
-
-  pageArr = JSON.parse(localStorage.getItem('pageStorage'));
+  taskObjLisk = JSON.parse(localStorage.getItem('pageStorage'));
 }
 
-function printElements(pageArr) {
+function printElements(taskObjLisk) {
 
   toDoBlock.innerHTML = '';
   completedBlock.innerHTML = '';
 
-  if (!pageArr) return;
-  if (pageArr.length < 1) return;
+  if (!taskObjLisk) return;
+  if (taskObjLisk.length < 1) return;
 
-  for (let i = 0; i < pageArr.length; i++) {
+  for (let i = 0; i < taskObjLisk.length; i++) {
     
-    if (pageArr[i] == undefined) return;
+    if (taskObjLisk[i] === undefined) return;
 
-    let obj = pageArr[i];
+    let obj = taskObjLisk[i];
     let newTask = document.createElement('li');
 
     let additionelBtns;
 
-    if (obj['isCompleted'] == false) {
+    if (obj['isCompleted'] === false) {
       toDoBlock.append(newTask);
 
       additionelBtns = `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
       <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n`;
 
-    } else if (obj['isCompleted'] == true) {
+    } else if (obj['isCompleted'] === true) {
       completedBlock.append(newTask);
 
       additionelBtns = ''
@@ -501,7 +494,7 @@ function printElements(pageArr) {
 
     newTask.classList.add('task', obj['index'], 'list-group-item', 'd-flex', 'w-100', 'mb-2');
 
-    if (theme == 'dark' && !obj['color'].includes('dark-')) {
+    if (theme === 'dark' && !obj['color'].includes('dark-')) {
       newTask.classList.add('dark-' + obj['color']);
     } else {
       newTask.classList.add(obj['color']);
@@ -533,7 +526,7 @@ function printElements(pageArr) {
     }
 
     // изменение цвета меню кнопок 
-    if (theme == 'dark') {
+    if (theme === 'dark') {
       let menus = document.querySelectorAll('.dropdown-menu');
 
       for (let i = 0; i < menus.length; i++) {
@@ -547,7 +540,7 @@ function printElements(pageArr) {
 window.addEventListener('unload', setStorageElements());
 
 function setStorageElements() {
-  localStorage.setItem('pageStorage', JSON.stringify(pageArr));
+  localStorage.setItem('pageStorage', JSON.stringify(taskObjLisk));
 }
 
 
