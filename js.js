@@ -3,9 +3,12 @@ let toDoBlock = document.querySelector('#currentTasks');
 let completedBlock = document.querySelector('#completedTasks');
 let form = document.querySelector('#form1');
 
+let sortDirection;
+
 let taskObjList = [];
 
 let editToggle = false;
+let editTaskIndex;
 
 if (localStorage.getItem('pageStorage')) {
   getElements();
@@ -38,8 +41,6 @@ addColorBtnsListener();
 
 taskNumCounter();
 
-let editTask;
-
 form.addEventListener('submit', (e) => {
   
   e.preventDefault(); 
@@ -52,18 +53,12 @@ form.addEventListener('submit', (e) => {
 
   if (editToggle === true) {
 
-    for (let i = 0; i < taskObjList.length; i++) {
-      if (editTask.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
-        taskObjList[i].title = formData.get('inputTitle');
-        taskObjList[i].priority = formData.get('priority');
-        taskObjList[i].text = formData.get('inputText');
+    taskObjList[editTaskIndex].title = formData.get('inputTitle');
+    taskObjList[editTaskIndex].priority = formData.get('priority');
+    taskObjList[editTaskIndex].text = formData.get('inputText');
 
-        if (formData.get('colors')) {
-          taskObjList[i].color = formData.get('colors');
-        } 
-
-        break;
-      }
+    if (formData.get('colors')) {
+      taskObjList[editTaskIndex].color = formData.get('colors');
     }  
   
     printElements(taskObjList);
@@ -122,11 +117,20 @@ function addNavbarBtnListener() {
     } else if (targetBtn.classList.contains('btn-dark')) {
       if (theme !== 'dark') setTheme('dark');
     } else if (targetBtn.classList.contains('up-button')) {
-      upSorter();
+
+      sortDirection = 'up';
+      taskSorter(sortDirection);
+
     } else if (targetBtn.classList.contains('down-button')) {
-      downSorter();
+
+      sortDirection = 'down';
+      taskSorter(sortDirection);
+
     } else if (targetBtn.classList.contains('addBtn')) {
-      addElemEditer();
+      editToggle = false;
+
+      formReset();
+      changeInscriptionsInModalTo('Add');
     }
   })
 }
@@ -188,36 +192,22 @@ function taskColoring(task) {
   }
 }
 
+function taskSorter(direction) {
 
-function upSorter() {
-
-  taskObjList = taskObjList.sort((a, b) => new Date(b.time) - new Date(a.time));
-
-  printElements(taskObjList);
-  saveStorageElements();
-}
-
-
-function downSorter() {
-
-  taskObjList = taskObjList.sort((a, b) => new Date(a.time) - new Date(b.time));
+  taskObjList = taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
 
   printElements(taskObjList);
   saveStorageElements();
 }
 
 
-function addElemEditer() {
-
-  formReset();
-
-  editToggle = false;
+function changeInscriptionsInModalTo(value) {
 
   let modalTitle = document.querySelector('#exampleModalLabel');
-  modalTitle.textContent = 'Add task';
+  modalTitle.textContent = value + ' task';
 
   let modalButton = document.querySelector('#submit');
-  modalButton.textContent = 'Add task';
+  modalButton.textContent = value + ' task';
 
 }
 
@@ -250,33 +240,36 @@ function addTaskBtnListener() {
 }
 
 
-function taskCompleter(target) {
+function taskCompleter(btn) {
 
-  let taskToComp = [...toDoBlock.querySelectorAll(".task")].find(li => li === target.closest(".task"));
+  let taskToComp = btn.closest(".task");
 
   for (let i = 0; i < taskObjList.length; i++) {
     if (taskToComp.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
       taskObjList[i].isCompleted = true;
+      completedBlock.append(taskToComp);
+
       break;
     }
   }
 
-  printElements(taskObjList);
+  taskSorter(sortDirection);
 
   saveStorageElements();
-
   taskNumCounter();
 }
 
 
-function taskEditor(target) {
+function taskEditor(btn) {
 
-  editTask = target.closest(".task");
-
-  let taskToEdit = [...toDoBlock.querySelectorAll(".task")].find(li => li === editTask);
+  let taskToEdit = btn.closest(".task");
 
   for (let i = 0; i < taskObjList.length; i++) {
     if (taskToEdit.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
+
+      editTaskIndex = i;
+
+      formReset();
       
       form.querySelector('#inputTitle').setAttribute('value', taskObjList[i].title);
       form.querySelector('#inputText').setAttribute('value', taskObjList[i].text);
@@ -291,32 +284,26 @@ function taskEditor(target) {
     }
   }
 
-  let modalTitle = document.querySelector('#exampleModalLabel');
-  modalTitle.textContent = 'Edit task';
-
-  let modalButton = document.querySelector('#submit');
-  modalButton.textContent = 'Edit task';
-
   editToggle = true;
+
+  changeInscriptionsInModalTo('Edit');
 }
 
 
-function taskDeleter(target) {
+function taskDeleter(btn) {
 
-  let taskToDel = [...mainBlock.querySelectorAll(".task")].find(li => li === target.closest(".task"));
+  let taskToDel = btn.closest(".task");
 
   for (let i = 0; i < taskObjList.length; i++) {
     if (taskToDel.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
       taskObjList.splice(i, 1);
+      taskToDel.remove();
+
       break;
     }
   }
-
-
-  printElements(taskObjList);
   
   saveStorageElements();
-
   taskNumCounter();
 }
 
@@ -332,7 +319,7 @@ function taskNumCounter() {
 
   toDoTitle.textContent = `ToDo (${toDoTasksAmount})`;
 
-  let compTasksAmount = taskObjList.filter(task => task.isCompleted === true).length;
+  let compTasksAmount = taskObjList.length - toDoTasksAmount;
   let completedTitle = document.querySelector('#completedTitle');
 
   completedTitle.textContent = `Completed (${compTasksAmount})`;
