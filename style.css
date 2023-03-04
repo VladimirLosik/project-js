@@ -16,14 +16,14 @@
     cursor: pointer;
 }
 
-.white {
+.transparent {
     background-color: #fff!important;
-    color: black;
+    border: 1px solid rgba(0,0,0,.125)
 }
 
-.dark-white {
+.dark-transparent {
     background-color: rgb(53, 53, 53)!important;
-    color: #e5e5e5;
+    border: 1px solid #6c757d;
 }
 
 .red {
@@ -112,4 +112,8 @@
 
 .light-nav {
     background-color: #f8f9fa;
+}
+
+.dark-btnMenu {
+    background-color: #505050!important;
 }

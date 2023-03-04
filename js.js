@@ -8,7 +8,9 @@ let sortDirection;
 let taskObjList = [];
 
 let editToggle = false;
+let editTask;
 let editTaskIndex;
+let editTaskColor;
 
 if (localStorage.getItem('pageStorage')) {
   getElements();
@@ -20,7 +22,7 @@ if (localStorage.getItem('pageStorage')) {
     // "time": new Date("2000-01-01T09:00:00.000Z"),
     "time": "2000-01-01T09:00:00.000Z",
     "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci aliquid eaque eligendi error eveniet nostrum nulla pariatur repudiandae, veniam. Provident.",
-    "color": 'white',
+    "color": 'transparent',
   }
 
   taskObjList.push(taskObj);
@@ -56,18 +58,16 @@ form.addEventListener('submit', (e) => {
     taskObjList[editTaskIndex].title = formData.get('inputTitle');
     taskObjList[editTaskIndex].priority = formData.get('priority');
     taskObjList[editTaskIndex].text = formData.get('inputText');
+    taskObjList[editTaskIndex].color = formData.get('colors');
 
-    if (formData.get('colors')) {
-      taskObjList[editTaskIndex].color = formData.get('colors');
-    }  
-  
-    printElements(taskObjList);
-
-    formReset();
     saveStorageElements();
 
-    editToggle = false;
+    editTask.setAttribute('data-color', formData.get('colors'));
+    editTask.classList.remove(theme === 'dark' ? 'dark-' + editTaskColor : editTaskColor);
+    taskColoring(editTask);
 
+    formReset();
+    editToggle = false;
     $('#exampleModal').modal('hide');
 
     return;
@@ -84,7 +84,7 @@ form.addEventListener('submit', (e) => {
     "text": formData.get('inputText'),
   }
 
-  taskObj.color = formData.get('colors') || "white";
+  taskObj.color = formData.get('colors') || "transparent";
 
   taskObjList.push(taskObj);
 
@@ -153,6 +153,9 @@ function setTheme(clickedTheme) {
   let tasks = document.querySelectorAll('.task');
   tasks.forEach(task => taskColoring(task));
 
+  let taskBtnsMenu = document.querySelectorAll('.dropdown-menu');
+  taskBtnsMenu.forEach(menu => menu.classList.toggle('dark-btnMenu'));
+
   // блок стабильных видоизменений модального окна
   let modalContent = document.querySelector('.modal-content');
   modalContent.classList.add(theme + '-modal');
@@ -163,7 +166,6 @@ function setTheme(clickedTheme) {
   textFields.forEach(function(field) {
     field.classList.toggle('dark-field');
   })
-  
 
   let closeX = modalContent.querySelector('.closeX');
   closeX.classList.toggle('dark-x');
@@ -263,6 +265,7 @@ function taskCompleter(btn) {
 function taskEditor(btn) {
 
   let taskToEdit = btn.closest(".task");
+  editTask = taskToEdit;
 
   for (let i = 0; i < taskObjList.length; i++) {
     if (taskToEdit.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
@@ -276,9 +279,9 @@ function taskEditor(btn) {
 
       form.querySelector(`.${taskObjList[i].priority.toLowerCase()}`).setAttribute('checked','');
 
-      if (taskObjList[i].color && taskObjList[i].color != "white") {
-        form.querySelector(`#${taskObjList[i].color.toLowerCase()}`).setAttribute('checked','');
-      }
+      form.querySelector(`#${taskObjList[i].color}`).setAttribute('checked','');
+
+      editTaskColor = taskObjList[i].color;
 
       break;
     }
@@ -399,11 +402,7 @@ function printElements(taskObjList) {
 
     taskColoring(newTask);
 
-    if (theme === 'dark' && !obj['color'].includes('dark-')) {
-      newTask.classList.add('dark-' + obj['color']);
-    } else {
-      newTask.classList.add(obj['color']);
-    }
+    let btnMenuColor = theme === 'dark' ? 'dark-btnMenu' : '';
 
     newTask.innerHTML = `
     <div class="w-100 mr-2">
@@ -420,24 +419,11 @@ function printElements(taskObjList) {
       <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="fas fa-ellipsis-v"></i>
       </button>
-      <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+      <div class="dropdown-menu p-2 flex-column btn-block ${btnMenuColor}" aria-labelledby="dropdownMenuItem1">
           ${additionelBtns}
           <button type="button" class="btn btn-danger w-100 delete">Delete</button>
       </div>
     </div>`;
-
-    if (obj.style) {
-      newTask.setAttribute('style', obj.style);
-    }
-
-    // изменение цвета меню кнопок 
-    if (theme === 'dark') {
-      let menus = document.querySelectorAll('.dropdown-menu');
-
-      for (let i = 0; i < menus.length; i++) {
-        menus[i].style.background = '#505050';
-      }
-    }
   }
 }
 
