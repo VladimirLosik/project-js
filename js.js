@@ -35,7 +35,7 @@ let theme = localStorage.getItem('theme') || 'light';
 
 if (theme === 'dark') setTheme('dark');
 
-printElements(taskObjList);
+printAllElements(taskObjList);
 
 addNavbarBtnListener();
 addTaskBtnListener();
@@ -56,15 +56,19 @@ form.addEventListener('submit', (e) => {
   if (editToggle === true) {
 
     taskObjList[editTaskIndex].title = formData.get('inputTitle');
-    taskObjList[editTaskIndex].priority = formData.get('priority');
     taskObjList[editTaskIndex].text = formData.get('inputText');
     taskObjList[editTaskIndex].color = formData.get('colors');
+    taskObjList[editTaskIndex].priority = formData.get('priority');
 
     saveStorageElements();
 
     editTask.setAttribute('data-color', formData.get('colors'));
     editTask.classList.remove(theme === 'dark' ? 'dark-' + editTaskColor : editTaskColor);
     taskColoring(editTask);
+
+    editTask.querySelector('.title').textContent = formData.get('inputTitle');
+    editTask.querySelector('.text').textContent = formData.get('inputText');
+    editTask.querySelector('.priority').textContent = formData.get('priority');
 
     formReset();
     editToggle = false;
@@ -86,16 +90,12 @@ form.addEventListener('submit', (e) => {
 
   taskObj.color = formData.get('colors') || "transparent";
 
+  printElement(taskObj);
+
   taskObjList.push(taskObj);
-
-  printElements(taskObjList);
-
   formReset();
-
   saveStorageElements();
-
   taskNumCounter();
-
   $('#exampleModal').modal('hide');
 });
 
@@ -198,7 +198,7 @@ function taskSorter(direction) {
 
   taskObjList = taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
 
-  printElements(taskObjList);
+  printAllElements(taskObjList);
   saveStorageElements();
 }
 
@@ -311,7 +311,6 @@ function taskDeleter(btn) {
 }
 
 //=========================================================
-// Счётчики текущих и завершённых тасков, запускаются при любых добавлениях, удалениях и перемешениях из категорий таксов
 
 function taskNumCounter() {
 
@@ -360,14 +359,13 @@ function formReset() {
 }
 
 //=========================================================
-// localStorage
 
 function getElements() {
 
   taskObjList = JSON.parse(localStorage.getItem('pageStorage'));
 }
 
-function printElements(taskObjList) {
+function printAllElements(taskObjList) {
 
   toDoBlock.innerHTML = '';
   completedBlock.innerHTML = '';
@@ -376,55 +374,58 @@ function printElements(taskObjList) {
   if (taskObjList.length < 1) return;
 
   for (let i = 0; i < taskObjList.length; i++) {
-    
-    if (taskObjList[i] === undefined) return;
-
-    let obj = taskObjList[i];
-    let newTask = document.createElement('li');
-
-    let additionelBtns;
-
-    if (obj['isCompleted'] === false) {
-      toDoBlock.append(newTask);
-
-      additionelBtns = `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
-      <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n`;
-
-    } else if (obj['isCompleted'] === true) {
-      completedBlock.append(newTask);
-
-      additionelBtns = '';
-    }
-
-    newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2');
-    newTask.setAttribute('data-time', JSON.parse(JSON.stringify(obj.time)));
-    newTask.setAttribute('data-color', obj.color);
-
-    taskColoring(newTask);
-
-    let btnMenuColor = theme === 'dark' ? 'dark-btnMenu' : '';
-
-    newTask.innerHTML = `
-    <div class="w-100 mr-2">
-      <div class="d-flex w-100 justify-content-between">
-          <h5 class="title mb-1">${obj.title}</h5>
-          <div>
-              <small class="priority mr-2">${obj.priority} priority</small>
-              <small class="time">${dateString(new Date(obj.time))}</small>
-          </div>
-      </div>
-      <p class="text mb-1 w-100">${obj.text}</p>
-    </div>
-    <div class="dropdown m-2 dropleft">
-      <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-ellipsis-v"></i>
-      </button>
-      <div class="dropdown-menu p-2 flex-column btn-block ${btnMenuColor}" aria-labelledby="dropdownMenuItem1">
-          ${additionelBtns}
-          <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-      </div>
-    </div>`;
+    printElement(taskObjList[i]);
   }
+}
+
+function printElement(obj) {
+
+  // if (obj === undefined) return;
+
+  let newTask = document.createElement('li');
+
+  let additionelBtns;
+
+  if (obj['isCompleted'] === false) {
+    toDoBlock.append(newTask);
+
+    additionelBtns = `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
+    <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n`;
+
+  } else if (obj['isCompleted'] === true) {
+    completedBlock.append(newTask);
+
+    additionelBtns = '';
+  }
+
+  newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2');
+  newTask.setAttribute('data-time', JSON.parse(JSON.stringify(obj.time)));
+  newTask.setAttribute('data-color', obj.color);
+
+  taskColoring(newTask);
+
+  let btnMenuColor = theme === 'dark' ? 'dark-btnMenu' : '';
+
+  newTask.innerHTML = `
+  <div class="w-100 mr-2">
+    <div class="d-flex w-100 justify-content-between">
+        <h5 class="title mb-1">${obj.title}</h5>
+        <div>
+            <small class="priority mr-2">${obj.priority} priority</small>
+            <small class="time">${dateString(new Date(obj.time))}</small>
+        </div>
+    </div>
+    <p class="text mb-1 w-100">${obj.text}</p>
+  </div>
+  <div class="dropdown m-2 dropleft">
+    <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="dropdown-menu p-2 flex-column btn-block ${btnMenuColor}" aria-labelledby="dropdownMenuItem1">
+        ${additionelBtns}
+        <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+    </div>
+  </div>`;
 }
 
 
