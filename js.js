@@ -1,7 +1,8 @@
-let mainBlock = document.querySelector('.main-block');
 let toDoBlock = document.querySelector('#currentTasks');
 let completedBlock = document.querySelector('#completedTasks');
 let form = document.querySelector('#form1');
+
+let navbar = document.querySelector('.navbar');
 
 let sortDirection;
 
@@ -19,14 +20,12 @@ if (localStorage.getItem('pageStorage')) {
     "isCompleted": false,
     "title": "Title",
     "priority": "High",
-    // "time": new Date("2000-01-01T09:00:00.000Z"),
     "time": "2000-01-01T09:00:00.000Z",
     "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci aliquid eaque eligendi error eveniet nostrum nulla pariatur repudiandae, veniam. Provident.",
     "color": 'transparent',
   }
 
   taskObjList.push(taskObj);
-
   saveStorageElements();
 }
 
@@ -36,23 +35,20 @@ let theme = localStorage.getItem('theme') || 'light';
 if (theme === 'dark') setTheme('dark');
 
 printAllElements(taskObjList);
-
 addNavbarBtnListener();
 addTaskBtnListener();
 addColorBtnsListener();
-
 taskNumCounter();
 
+// ========================================================
+
 form.addEventListener('submit', (e) => {
-  
   e.preventDefault(); 
 
   let formData = new FormData(form);
   let date = new Date();
 
-  //=========================================================
-  // ответвление для редактирования таска
-
+  // ответвление для редактирования таска =================
   if (editToggle === true) {
 
     taskObjList[editTaskIndex].title = formData.get('inputTitle');
@@ -77,9 +73,7 @@ form.addEventListener('submit', (e) => {
     return;
   }
 
-  //=========================================================
-  // создания нового таска
-
+  // создания нового таска ================================
   let taskObj = {
     "isCompleted": false,
     "title": formData.get('inputTitle'),
@@ -99,12 +93,9 @@ form.addEventListener('submit', (e) => {
   $('#exampleModal').modal('hide');
 });
 
-//=========================================================
-//=========================================================
+// ========================================================
 
 function addNavbarBtnListener() {
-
-  let navbar = document.querySelector('.navbar');
 
   navbar.addEventListener('click', (e) => {
     let target = e.target;
@@ -140,7 +131,7 @@ function setTheme(clickedTheme) {
   theme = clickedTheme;
   oppositeTheme = (theme === 'light') ? 'dark' : 'light';
 
-  // блок стабильных видоизменений основного окна
+  // блок основного окна ==================================
   document.body.classList.add(theme + '-main');
   document.body.classList.remove(oppositeTheme + '-main');
 
@@ -156,7 +147,7 @@ function setTheme(clickedTheme) {
   let taskBtnsMenu = document.querySelectorAll('.dropdown-menu');
   taskBtnsMenu.forEach(menu => menu.classList.toggle('dark-btnMenu'));
 
-  // блок стабильных видоизменений модального окна
+  // блок модального окна ==================================
   let modalContent = document.querySelector('.modal-content');
   modalContent.classList.add(theme + '-modal');
   modalContent.classList.remove(oppositeTheme + '-modal');
@@ -213,7 +204,6 @@ function changeInscriptionsInModalTo(value) {
 
 }
 
-
 //=========================================================
 
 function dateString(date) {
@@ -228,6 +218,7 @@ function dateString(date) {
 
 function addTaskBtnListener() {
 
+  let mainBlock = document.querySelector('.main-block');
   mainBlock.addEventListener('click', (e) => {
     let target = e.target;
 
@@ -361,7 +352,6 @@ function formReset() {
 //=========================================================
 
 function getElements() {
-
   taskObjList = JSON.parse(localStorage.getItem('pageStorage'));
 }
 
@@ -379,8 +369,6 @@ function printAllElements(taskObjList) {
 }
 
 function printElement(obj) {
-
-  // if (obj === undefined) return;
 
   let newTask = document.createElement('li');
 
@@ -428,11 +416,9 @@ function printElement(obj) {
   </div>`;
 }
 
-
 function saveStorageElements() {
   localStorage.setItem('pageStorage', JSON.stringify(taskObjList));
 }
-
 
 function saveThemeColor() {
   localStorage.setItem('theme', theme);
