@@ -64,7 +64,7 @@ form.addEventListener('submit', (e) => {
 
     editTask.querySelector('.title').textContent = formData.get('inputTitle');
     editTask.querySelector('.text').textContent = formData.get('inputText');
-    editTask.querySelector('.priority').textContent = formData.get('priority');
+    editTask.querySelector('.priority').textContent = formData.get('priority') + " priority";
 
     formReset();
     editToggle = false;
