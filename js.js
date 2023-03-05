@@ -173,6 +173,16 @@ function setTheme(clickedTheme) {
   saveThemeColor();
 }
 
+function taskSorter(direction) {
+
+  taskObjList = taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
+
+  printAllElements(taskObjList);
+  saveStorageElements();
+}
+
+//=========================================================
+
 function taskColoring(task) {
   let color = task.getAttribute('data-color');
 
@@ -185,15 +195,6 @@ function taskColoring(task) {
   }
 }
 
-function taskSorter(direction) {
-
-  taskObjList = taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
-
-  printAllElements(taskObjList);
-  saveStorageElements();
-}
-
-
 function changeInscriptionsInModalTo(value) {
 
   let modalTitle = document.querySelector('#exampleModalLabel');
@@ -202,16 +203,6 @@ function changeInscriptionsInModalTo(value) {
   let modalButton = document.querySelector('#submit');
   modalButton.textContent = value + ' task';
 
-}
-
-//=========================================================
-
-function dateString(date) {
-  let str = '';
-
-  str = date.toLocaleTimeString().slice(0,-3) + ' ' + date.toLocaleDateString();
-
-  return str;
 }
 
 //=========================================================
@@ -232,7 +223,6 @@ function addTaskBtnListener() {
   })
 }
 
-
 function taskCompleter(btn) {
 
   let taskToComp = btn.closest(".task");
@@ -251,7 +241,6 @@ function taskCompleter(btn) {
   saveStorageElements();
   taskNumCounter();
 }
-
 
 function taskEditor(btn) {
 
@@ -317,8 +306,6 @@ function taskNumCounter() {
 
   completedTitle.textContent = `Completed (${compTasksAmount})`;
 }
-
-//=========================================================
 
 function addColorBtnsListener() {
 
@@ -415,6 +402,16 @@ function printElement(obj) {
     </div>
   </div>`;
 }
+
+function dateString(date) {
+  let str = '';
+
+  str = date.toLocaleTimeString().slice(0,-3) + ' ' + date.toLocaleDateString();
+
+  return str;
+}
+
+//=========================================================
 
 function saveStorageElements() {
   localStorage.setItem('pageStorage', JSON.stringify(taskObjList));
