@@ -1,14 +1,13 @@
+let navbar = document.querySelector('.navbar');
 let toDoBlock = document.querySelector('#currentTasks');
 let completedBlock = document.querySelector('#completedTasks');
 let form = document.querySelector('#form1');
-
-let navbar = document.querySelector('.navbar');
 
 let sortDirection;
 
 let taskObjList = [];
 
-let editToggle = false;
+let editToggle;
 let editTask;
 let editTaskIndex;
 let editTaskColor;
@@ -67,7 +66,6 @@ form.addEventListener('submit', (e) => {
     editTask.querySelector('.priority').textContent = formData.get('priority') + " priority";
 
     formReset();
-    editToggle = false;
     $('#exampleModal').modal('hide');
 
     return;
@@ -154,9 +152,7 @@ function setTheme(clickedTheme) {
 
   let textFields = document.querySelectorAll('.form-control');
 
-  textFields.forEach(function(field) {
-    field.classList.toggle('dark-field');
-  })
+  textFields.forEach(field => field.classList.toggle('dark-field'));
 
   let closeX = modalContent.querySelector('.closeX');
   closeX.classList.toggle('dark-x');
