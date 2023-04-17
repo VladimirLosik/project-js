@@ -175,7 +175,7 @@ function setTheme(clickedTheme) {
 
 function taskSorter(direction) {
 
-  taskObjList = taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
+  taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
 
   printAllElements(taskObjList);
   saveStorageElements();
@@ -244,11 +244,10 @@ function taskCompleter(btn) {
 
 function taskEditor(btn) {
 
-  let taskToEdit = btn.closest(".task");
-  editTask = taskToEdit;
+  editTask = btn.closest(".task");
 
   for (let i = 0; i < taskObjList.length; i++) {
-    if (taskToEdit.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
+    if (editTask.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
 
       editTaskIndex = i;
 
@@ -257,9 +256,8 @@ function taskEditor(btn) {
       form.querySelector('#inputTitle').setAttribute('value', taskObjList[i].title);
       form.querySelector('#inputText').setAttribute('value', taskObjList[i].text);
 
-      form.querySelector(`.${taskObjList[i].priority.toLowerCase()}`).setAttribute('checked','');
-
       form.querySelector(`#${taskObjList[i].color}`).setAttribute('checked','');
+      form.querySelector(`#${taskObjList[i].priority}`).setAttribute('checked','');
 
       editTaskColor = taskObjList[i].color;
 
