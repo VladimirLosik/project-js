@@ -5,29 +5,12 @@ let form = document.querySelector('#form1');
 
 let sortDirection;
 
-let taskObjList = [];
+let taskObjList = localStorage.getItem('pageStorage') ? JSON.parse(localStorage.getItem('pageStorage')) : [];
 
 let editToggle;
+let editObj;
 let editTask;
-let editTaskIndex;
 let editTaskColor;
-
-if (localStorage.getItem('pageStorage')) {
-  getElements();
-} else {
-  let taskObj = {
-    "isCompleted": false,
-    "title": "Title",
-    "priority": "High",
-    "time": "2000-01-01T09:00:00.000Z",
-    "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci aliquid eaque eligendi error eveniet nostrum nulla pariatur repudiandae, veniam. Provident.",
-    "color": 'transparent',
-  }
-
-  taskObjList.push(taskObj);
-  saveStorageElements();
-}
-
 
 let theme = localStorage.getItem('theme') || 'light';
 
@@ -50,41 +33,30 @@ form.addEventListener('submit', (e) => {
   // ответвление для редактирования таска =================
   if (editToggle === true) {
 
-    taskObjList[editTaskIndex].title = formData.get('inputTitle');
-    taskObjList[editTaskIndex].text = formData.get('inputText');
-    taskObjList[editTaskIndex].color = formData.get('colors');
-    taskObjList[editTaskIndex].priority = formData.get('priority');
+    editObj.title = formData.get('inputTitle');
+    editObj.text = formData.get('inputText');
+    editObj.color = formData.get('colors');
+    editObj.priority = formData.get('priority');
 
-    saveStorageElements();
+    printElement(editObj);
+    toDoBlock.replaceChild(toDoBlock.lastChild, editTask);
 
-    editTask.setAttribute('data-color', formData.get('colors'));
-    editTask.classList.remove(theme === 'dark' ? 'dark-' + editTaskColor : editTaskColor);
-    taskColoring(editTask);
+  } else {
 
-    editTask.querySelector('.title').textContent = formData.get('inputTitle');
-    editTask.querySelector('.text').textContent = formData.get('inputText');
-    editTask.querySelector('.priority').textContent = formData.get('priority') + " priority";
+    // создания нового таска ================================
+    let taskObj = {
+      "isCompleted": false,
+      "title": formData.get('inputTitle'),
+      "text": formData.get('inputText'),
+      "color": formData.get('colors') || "transparent",
+      "priority": formData.get('priority'),
+      "time": date,
+    }
 
-    formReset();
-    $('#exampleModal').modal('hide');
-
-    return;
+    printElement(taskObj);
+    taskObjList.push(taskObj);
   }
 
-  // создания нового таска ================================
-  let taskObj = {
-    "isCompleted": false,
-    "title": formData.get('inputTitle'),
-    "priority": formData.get('priority'),
-    "time": date,
-    "text": formData.get('inputText'),
-  }
-
-  taskObj.color = formData.get('colors') || "transparent";
-
-  printElement(taskObj);
-
-  taskObjList.push(taskObj);
   formReset();
   saveStorageElements();
   taskNumCounter();
@@ -208,29 +180,24 @@ function addTaskBtnListener() {
   let mainBlock = document.querySelector('.main-block');
   mainBlock.addEventListener('click', (e) => {
     let target = e.target;
+    let task = target.closest(".task");
+
+    let targetObj = taskObjList.find(obj => JSON.parse(JSON.stringify(obj.time)) === task.getAttribute('data-time'));
 
     if (target.classList.contains('complete')) {
-      taskCompleter(target);
+      taskCompleter(task, targetObj);
     } else if (target.classList.contains('edit')) {
-      taskEditor(target);
+      taskEditor(task, targetObj);
     } else if (target.classList.contains('delete')) {
-      taskDeleter(target);
+      taskDeleter(task, targetObj);
     }
   })
 }
 
-function taskCompleter(btn) {
+function taskCompleter(task, targetObj) {
 
-  let taskToComp = btn.closest(".task");
-
-  for (let i = 0; i < taskObjList.length; i++) {
-    if (taskToComp.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
-      taskObjList[i].isCompleted = true;
-      completedBlock.append(taskToComp);
-
-      break;
-    }
-  }
+  targetObj.isCompleted = true;
+  completedBlock.append(task);
 
   taskSorter(sortDirection);
 
@@ -238,28 +205,20 @@ function taskCompleter(btn) {
   taskNumCounter();
 }
 
-function taskEditor(btn) {
+function taskEditor(task, targetObj) {
 
-  editTask = btn.closest(".task");
+  editTask = task;
+  editObj = targetObj;
 
-  for (let i = 0; i < taskObjList.length; i++) {
-    if (editTask.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
+  formReset();
+  
+  form.querySelector('#inputTitle').setAttribute('value', targetObj.title);
+  form.querySelector('#inputText').setAttribute('value', targetObj.text);
 
-      editTaskIndex = i;
+  form.querySelector(`#${targetObj.color}`).setAttribute('checked','');
+  form.querySelector(`#${targetObj.priority}`).setAttribute('checked','');
 
-      formReset();
-      
-      form.querySelector('#inputTitle').setAttribute('value', taskObjList[i].title);
-      form.querySelector('#inputText').setAttribute('value', taskObjList[i].text);
-
-      form.querySelector(`#${taskObjList[i].color}`).setAttribute('checked','');
-      form.querySelector(`#${taskObjList[i].priority}`).setAttribute('checked','');
-
-      editTaskColor = taskObjList[i].color;
-
-      break;
-    }
-  }
+  editTaskColor = targetObj.color;
 
   editToggle = true;
 
@@ -267,18 +226,10 @@ function taskEditor(btn) {
 }
 
 
-function taskDeleter(btn) {
+function taskDeleter(task, targetObj) {
 
-  let taskToDel = btn.closest(".task");
-
-  for (let i = 0; i < taskObjList.length; i++) {
-    if (taskToDel.getAttribute('data-time') === JSON.parse(JSON.stringify(taskObjList[i].time))) {
-      taskObjList.splice(i, 1);
-      taskToDel.remove();
-
-      break;
-    }
-  }
+  taskObjList = taskObjList.filter(obj => obj !== targetObj);
+  task.remove();
   
   saveStorageElements();
   taskNumCounter();
@@ -332,17 +283,12 @@ function formReset() {
 
 //=========================================================
 
-function getElements() {
-  taskObjList = JSON.parse(localStorage.getItem('pageStorage'));
-}
-
 function printAllElements(taskObjList) {
 
   toDoBlock.innerHTML = '';
   completedBlock.innerHTML = '';
 
-  if (!taskObjList) return;
-  if (taskObjList.length < 1) return;
+  if (!taskObjList || !taskObjList.length) return;
 
   for (let i = 0; i < taskObjList.length; i++) {
     printElement(taskObjList[i]);
