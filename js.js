@@ -57,7 +57,6 @@ form.addEventListener('submit', (e) => {
     taskObjList.push(taskObj);
   }
 
-  formReset();
   saveStorageElements();
   taskNumCounter();
   $('#exampleModal').modal('hide');
