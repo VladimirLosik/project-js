@@ -1,13 +1,16 @@
 let navbar = document.querySelector('.navbar');
 let toDoBlock = document.querySelector('#currentTasks');
 let completedBlock = document.querySelector('#completedTasks');
-let form = document.querySelector('#form1');
+let form = document.querySelector('#form');
+let sortBtns = document.querySelector("#sortBtns");
+let addBtn = document.querySelector('#addBtn');
+let themeBtns = document.querySelector('#themeBtns');
 
 let sortDirection;
 
 let taskObjList = localStorage.getItem('pageStorage') ? JSON.parse(localStorage.getItem('pageStorage')) : [];
 
-let editToggle;
+let isEdit;
 let editObj;
 let editTask;
 let editTaskColor;
@@ -17,9 +20,7 @@ let theme = localStorage.getItem('theme') || 'light';
 if (theme === 'dark') setTheme('dark');
 
 printAllElements(taskObjList);
-addNavbarBtnListener();
 addTaskBtnListener();
-addColorBtnsListener();
 taskNumCounter();
 
 // ========================================================
@@ -31,7 +32,7 @@ form.addEventListener('submit', (e) => {
   let date = new Date();
 
   // ответвление для редактирования таска =================
-  if (editToggle === true) {
+  if (isEdit === true) {
 
     editObj.title = formData.get('inputTitle');
     editObj.text = formData.get('inputText');
@@ -64,36 +65,34 @@ form.addEventListener('submit', (e) => {
 
 // ========================================================
 
-function addNavbarBtnListener() {
+sortBtns.addEventListener('click', (e) => {
 
-  navbar.addEventListener('click', (e) => {
-    let target = e.target;
-    let targetBtn = target.closest('button');
+  let targetBtn = e.target.closest('button');
 
-    if (!targetBtn) return;
+  if (!targetBtn) return;
 
-    if (targetBtn.classList.contains('btn-light')) {
-      if (theme !== 'light') setTheme('light');
-    } else if (targetBtn.classList.contains('btn-dark')) {
-      if (theme !== 'dark') setTheme('dark');
-    } else if (targetBtn.classList.contains('up-button')) {
+  targetBtn.classList.contains('up-button') ? taskSorter('up') : taskSorter('down');
+})
 
-      sortDirection = 'up';
-      taskSorter(sortDirection);
+addBtn.addEventListener('click', () => {
 
-    } else if (targetBtn.classList.contains('down-button')) {
+    isEdit = false;
 
-      sortDirection = 'down';
-      taskSorter(sortDirection);
+    formReset();
+    changeInscriptionsInModalTo('Add');
+})
 
-    } else if (targetBtn.classList.contains('addBtn')) {
-      editToggle = false;
+themeBtns.addEventListener('click', (e) => {
 
-      formReset();
-      changeInscriptionsInModalTo('Add');
-    }
-  })
-}
+  let targetBtn = e.target.closest('button');
+
+  if (!targetBtn) return;
+
+  if (targetBtn.classList.contains('btn-light') && theme !== 'light') setTheme('light');
+  if (targetBtn.classList.contains('btn-dark') && theme !== 'dark') setTheme('dark');
+})
+
+//=========================================================
 
 function setTheme(clickedTheme) {
 
@@ -101,6 +100,9 @@ function setTheme(clickedTheme) {
   oppositeTheme = (theme === 'light') ? 'dark' : 'light';
 
   // блок основного окна ==================================
+  // document.body.style.setProperty("--main-color", "#e5e5e5");
+  // document.body.style.setProperty("--main-bc", "#111111");
+
   document.body.classList.add(theme + '-main');
   document.body.classList.remove(oppositeTheme + '-main');
 
@@ -128,10 +130,10 @@ function setTheme(clickedTheme) {
   let closeX = modalContent.querySelector('.closeX');
   closeX.classList.toggle('dark-x');
 
-  let colorBtns = form.querySelectorAll('.color-check');
+  let colorBtns = form.querySelectorAll('.color-label');
   colorBtns.forEach((btn) => {
 
-    let color = btn.getAttribute('data-color');
+    let color = btn.getAttribute('for');
 
     btn.classList.toggle(color);
     btn.classList.toggle(`dark-${color}`);
@@ -219,7 +221,7 @@ function taskEditor(task, targetObj) {
 
   editTaskColor = targetObj.color;
 
-  editToggle = true;
+  isEdit = true;
 
   changeInscriptionsInModalTo('Edit');
 }
@@ -249,23 +251,6 @@ function taskNumCounter() {
   let completedTitle = document.querySelector('#completedTitle');
 
   completedTitle.textContent = `Completed (${compTasksAmount})`;
-}
-
-function addColorBtnsListener() {
-
-  let colorBtns = document.querySelector('.colorBtns');
-
-  colorBtns.addEventListener('click', (e) => {
-
-    let target = e.target;
-
-    if (target.closest('.color-check')) {
-      let formColorBtns = form.querySelectorAll('.color-radio');
-      formColorBtns.forEach(btn => btn.removeAttribute('checked'));
-
-      target.closest('.color-check').querySelector('input').setAttribute('checked','');
-    }
-  })
 }
 
 function formReset() {

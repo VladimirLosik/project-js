@@ -19,12 +19,12 @@
     <div id="container" class="container-fluid wrapper">
         <nav id="navbar" class="navbar navbar-light">
             <h1>MyToDoList</h1>
-            <div class="d-flex">
+            <div class="d-flex" id="sortBtns">
                 <button type="button" class="up-button btn btn-primary mx-2"><i class="fas fa-sort-numeric-up-alt"></i></button>
                 <button type="button" class="down-button btn btn-primary"><i class="fas fa-sort-numeric-up"></i></button>
             </div>
             <div class="d-flex">
-                <button type="button" class="btn btn-primary addBtn" data-toggle="modal" data-target="#exampleModal" id="addTaskButton">
+                <button type="button" class="btn btn-primary addBtn" data-toggle="modal" data-target="#exampleModal" id="addBtn">
                     <i class="fas fa-plus"></i>
                     Add task
                 </button>
@@ -32,7 +32,7 @@
                     <button class="btn btn-primary" type="button" id="dropdownMenuSettings" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-cog"></i>
                     </button>
-                    <div class="dropdown-menu p-2 dropdown-menu-right" aria-labelledby="dropdownMenuSettings">
+                    <div class="dropdown-menu p-2 dropdown-menu-right" id="themeBtns" aria-labelledby="dropdownMenuSettings">
                         <button type="button" class="btn btn-light w-100" id="light">Light theme</button>
                         <button type="button" class="btn btn-dark w-100" id="dark">Dark theme</button>
                     </div>
@@ -63,7 +63,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="form1">
+                    <form id="form">
                         <div class="form-group row">
                             <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>
                             <div class="col-sm-10">
@@ -81,44 +81,32 @@
                                 <legend class="col-form-label col-sm-2 pt-0">Color</legend>
                                 <div class="colorBtns col-sm-10" id="colors">
                                     <div class="first-line">
-                                        <span class="color-check red" data-color="red">
-                                            <input class="form-check-input color-radio" type="radio" name="colors" id="red" value="red">
-                                            <label class="form-check-label color-label" for="red">
-                                                Red
-                                            </label>
-                                        </span>
-                                        <span class="color-check orange" data-color="orange">
-                                            <input class="form-check-input color-radio" type="radio" name="colors" id="orange" value="orange">
-                                            <label class="form-check-label color-label" for="orange">
-                                                Orange
-                                            </label>
-                                        </span>
-                                        <span class="color-check green" data-color="green">
-                                            <input class="form-check-input color-radio" type="radio" name="colors" id="green" value="green">
-                                            <label class="form-check-label color-label" for="green">
-                                                Green
-                                            </label>
-                                        </span>
+                                        <label class="red color-label" for="red">
+                                            <input class="switch" type="radio" name="colors" id="red" value="red">
+                                            Red
+                                        </label>
+                                        <label class="orange color-label" for="orange">
+                                            <input class="switch" type="radio" name="colors" id="orange" value="orange">
+                                            Orange
+                                        </label>
+                                        <label class="green color-label" for="green">
+                                            <input class="switch" type="radio" name="colors" id="green" value="green">
+                                            Green
+                                        </label>
                                     </div>
                                     <div class="second-line">
-                                        <span class="color-check turquoise" data-color="turquoise">
-                                            <input class="form-check-input color-radio" type="radio" name="colors" id="turquoise" value="turquoise">
-                                            <label class="form-check-label color-label" for="turquoise">
-                                                Turquoise
-                                            </label>
-                                        </span>
-                                        <span class="color-check blue" data-color="blue">
-                                            <input class="form-check-input color-radio" type="radio" name="colors" id="blue" value="blue">
-                                            <label class="form-check-label color-label" for="blue">
-                                                Blue
-                                            </label>
-                                        </span>
-                                        <span class="color-check transparent" data-color="transparent">
-                                            <input class="form-check-input color-radio" type="radio" name="colors" id="transparent" value="transparent">
-                                            <label class="form-check-label color-label" for="transparent">
-                                                Transparent
-                                            </label>
-                                        </span>
+                                        <label class="turquoise color-label" for="turquoise">
+                                            <input class="switch" type="radio" name="colors" id="turquoise" value="turquoise">
+                                            Turquoise
+                                        </label>
+                                        <label class="blue color-label" for="blue">
+                                            <input class="switch" type="radio" name="colors" id="blue" value="blue">
+                                            Blue
+                                        </label>
+                                        <label class="transparent color-label" for="transparent">
+                                            <input class="switch" type="radio" name="colors" id="transparent" value="transparent">
+                                            Transparent
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -127,21 +115,21 @@
                             <div class="row">
                                 <legend class="col-form-label col-sm-2 pt-0">Priority</legend>
                                 <div class="col-sm-10">
-                                    <div class="form-check">
-                                        <input class="low form-check-input" type="radio" name="priority" id="Low" value="Low" required>
-                                        <label class="form-check-label" for="Low">
+                                    <div>
+                                        <label class="priority-label" for="Low">
+                                            <input class="switch" type="radio" name="priority" id="Low" value="Low" required>
                                             Low
                                         </label>
                                     </div>
-                                    <div class="form-check">
-                                        <input class="medium form-check-input" type="radio" name="priority" id="Medium" value="Medium">
-                                        <label class="form-check-label" for="Medium">
+                                    <div>
+                                        <label class="priority-label" for="Medium">
+                                            <input class="switch" type="radio" name="priority" id="Medium" value="Medium">
                                             Medium
                                         </label>
                                     </div>
-                                    <div class="form-check disabled">
-                                        <input class="high form-check-input" type="radio" name="priority" id="High" value="High">
-                                        <label class="form-check-label" for="High">
+                                    <div>
+                                        <label class="priority-label" for="High">
+                                            <input class="switch" type="radio" name="priority" id="High" value="High">
                                             High
                                         </label>
                                     </div>

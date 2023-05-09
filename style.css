@@ -1,17 +1,57 @@
+body {
+    --main-bc: #fff;
+    --main-dark-bc: #111111;
+    --main-light-color: black;
+    --main-dark-color: #e5e5e5;
+
+    
+}
+
+.color-label {
+    cursor: pointer;
+    padding: 0 8px 0 31px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.switch {
+    cursor: pointer;
+    margin: 5.5px 0 0 -21px;
+}
+
+.priority-label {
+    padding: 0 8px 0 32px;
+    margin-bottom: 0;
+}
+
+/* #container {
+        
+} */
+
+.dark-main {
+    background-color: #111111;
+    color: #e5e5e5;
+}
+
+.dark-nav {
+    background-color: #353535;
+}
+
+.light-main {
+    background-color: #fff;
+    color: black;
+}
+
+.light-nav {
+    background-color: #f8f9fa;
+}
+
 .color-check {
     position: relative;
     display: inline-block; 
     margin-bottom: 5px; 
     padding: 0px 8px 0px 27px;
     border-radius: 0.25rem;
-    cursor: pointer;
-}
-
-.color-radio {
-    cursor: pointer;
-}
-
-.color-label {
     cursor: pointer;
 }
 
@@ -93,24 +133,6 @@
 
 .dark-x {
     color: #fff!important;
-}
-
-.dark-main {
-    background-color: #111111;
-    color: #e5e5e5;
-}
-
-.dark-nav {
-    background-color: #353535;
-}
-
-.light-main {
-    background-color: #fff;
-    color: black;
-}
-
-.light-nav {
-    background-color: #f8f9fa;
 }
 
 .dark-btnMenu {
