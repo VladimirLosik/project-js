@@ -1,3 +1,4 @@
+let body = document.querySelector('body');
 let navbar = document.querySelector('.navbar');
 let toDoBlock = document.querySelector('#currentTasks');
 let completedBlock = document.querySelector('#completedTasks');
@@ -97,47 +98,79 @@ themeBtns.addEventListener('click', (e) => {
 function setTheme(clickedTheme) {
 
   theme = clickedTheme;
-  oppositeTheme = (theme === 'light') ? 'dark' : 'light';
+  
+  if (theme === 'light') {
+    body.style.setProperty('--main-bc', '#fff');
+    body.style.setProperty('--main-color', 'black');
+    body.style.setProperty('--secondary-bc', '#f8f9fa');
+    body.style.setProperty('--modal-bc', '#fff');
+    body.style.setProperty('--modal-field', '#fff');
 
-  // блок основного окна ==================================
+    body.style.setProperty('--bc-red', 'rgb(255, 200, 200)');
+    body.style.setProperty('--bc-orange', 'rgb(255, 225, 150)');
+    body.style.setProperty('--bc-green', 'rgb(220, 255, 200)');
+    body.style.setProperty('--bc-turquoise', 'rgb(210, 255, 240)');
+    body.style.setProperty('--bc-blue', 'rgb(190, 230, 255)');
+    body.style.setProperty('--transparent', 'rgba(0,0,0,.125)');
+    body.style.setProperty('--bc-transparent', 'rgb(255, 255, 255)');
+  } else {
+    body.style.setProperty('--main-bc', '#111111');
+    body.style.setProperty('--main-color', '#e5e5e5');
+    body.style.setProperty('--secondary-bc', 'rgb(53, 53, 53)');
+    body.style.setProperty('--modal-bc', 'rgb(53, 53, 53)');
+    body.style.setProperty('--modal-field', '#6c757d');
+
+    body.style.setProperty('--bc-red', 'rgb(100, 50, 50)');
+    body.style.setProperty('--bc-orange', 'rgb(100, 70, 50)');
+    body.style.setProperty('--bc-green', 'rgb(50, 80, 50)');
+    body.style.setProperty('--bc-turquoise', 'rgb(50, 80, 75)');
+    body.style.setProperty('--bc-blue', 'rgb(35, 50, 100)');
+    body.style.setProperty('--transparent', '#6c757d');
+    body.style.setProperty('--bc-transparent', 'rgb(53, 53, 53)');
+  } 
+
+  
+  // oppositeTheme = (theme === 'light') ? 'dark' : 'light';
+
+  // // блок основного окна ==================================
   // document.body.style.setProperty("--main-color", "#e5e5e5");
   // document.body.style.setProperty("--main-bc", "#111111");
 
-  document.body.classList.add(theme + '-main');
-  document.body.classList.remove(oppositeTheme + '-main');
+  // document.body.classList.add(theme + '-main');
+  // document.body.classList.remove(oppositeTheme + '-main');
 
-  container.classList.add(theme + '-main');
-  container.classList.remove(oppositeTheme + '-main');
+  // container.classList.add(theme + '-main');
+  // container.classList.remove(oppositeTheme + '-main');
 
-  navbar.classList.add(theme + '-nav');
-  navbar.classList.remove(oppositeTheme + '-nav');
+  // navbar.classList.add(theme + '-nav');
+  // navbar.classList.remove(oppositeTheme + '-nav');
 
-  let tasks = document.querySelectorAll('.task');
-  tasks.forEach(task => taskColoring(task));
+  // let tasks = document.querySelectorAll('.task');
+  // tasks.forEach(task => taskColoring(task));
 
-  let taskBtnsMenu = document.querySelectorAll('.dropdown-menu');
-  taskBtnsMenu.forEach(menu => menu.classList.toggle('dark-btnMenu'));
+  // let taskBtnsMenu = document.querySelectorAll('.dropdown-menu');
+  // taskBtnsMenu.forEach(menu => menu.classList.toggle('dark-btnMenu'));
 
-  // блок модального окна ==================================
-  let modalContent = document.querySelector('.modal-content');
-  modalContent.classList.add(theme + '-modal');
-  modalContent.classList.remove(oppositeTheme + '-modal');
+  // // блок модального окна ==================================
+  // let modalContent = document.querySelector('.modal-content');
+  // modalContent.classList.add(theme + '-modal');
+  // modalContent.classList.remove(oppositeTheme + '-modal');
 
-  let textFields = document.querySelectorAll('.form-control');
+  // let textFields = document.querySelectorAll('.form-control');
 
-  textFields.forEach(field => field.classList.toggle('dark-field'));
+  // textFields.forEach(field => field.classList.toggle('dark-field'));
 
-  let closeX = modalContent.querySelector('.closeX');
-  closeX.classList.toggle('dark-x');
+  // let closeX = modalContent.querySelector('.closeX');
+  // closeX.classList.toggle('dark-x');
 
-  let colorBtns = form.querySelectorAll('.color-label');
-  colorBtns.forEach((btn) => {
+  // let colorBtns = form.querySelectorAll('.color-label');
+  // colorBtns.forEach((btn) => {
 
-    let color = btn.getAttribute('for');
+  //   let color = btn.getAttribute('for');
 
-    btn.classList.toggle(color);
-    btn.classList.toggle(`dark-${color}`);
-  });
+  //   btn.classList.toggle(color);
+  //   btn.classList.toggle(`dark-${color}`);
+  // });
 
   saveThemeColor();
 }
@@ -152,17 +185,17 @@ function taskSorter(direction) {
 
 //=========================================================
 
-function taskColoring(task) {
-  let color = task.getAttribute('data-color');
+// function taskColoring(task) {
+//   let color = task.getAttribute('data-color');
 
-  if (theme === 'dark') {
-    task.classList.add('dark-' + color);
-    task.classList.remove(color);
-  } else {
-    task.classList.add(color);
-    task.classList.remove('dark-' + color);
-  }
-}
+//   if (theme === 'dark') {
+//     task.classList.add('dark-' + color);
+//     task.classList.remove(color);
+//   } else {
+//     task.classList.add(color);
+//     task.classList.remove('dark-' + color);
+//   }
+// }
 
 function changeInscriptionsInModalTo(value) {
 
@@ -260,9 +293,8 @@ function formReset() {
   let formText = form.querySelectorAll('.form-control');
   formText.forEach(elem => elem.removeAttribute('value'));
 
-  let formBtns = form.querySelectorAll('.form-check-input');
+  let formBtns = form.querySelectorAll('.switch');
   formBtns.forEach(btn => btn.removeAttribute('checked'));
-  
 }
 
 //=========================================================
@@ -283,27 +315,18 @@ function printElement(obj) {
 
   let newTask = document.createElement('li');
 
-  let additionelBtns;
-
   if (obj['isCompleted'] === false) {
     toDoBlock.append(newTask);
 
-    additionelBtns = `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
-    <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n`;
-
   } else if (obj['isCompleted'] === true) {
     completedBlock.append(newTask);
-
-    additionelBtns = '';
   }
 
-  newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2');
+  newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2', obj.color);
   newTask.setAttribute('data-time', JSON.parse(JSON.stringify(obj.time)));
   newTask.setAttribute('data-color', obj.color);
 
-  taskColoring(newTask);
-
-  let btnMenuColor = theme === 'dark' ? 'dark-btnMenu' : '';
+  // taskColoring(newTask);
 
   newTask.innerHTML = `
   <div class="w-100 mr-2">
@@ -320,8 +343,10 @@ function printElement(obj) {
     <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="fas fa-ellipsis-v"></i>
     </button>
-    <div class="dropdown-menu p-2 flex-column btn-block ${btnMenuColor}" aria-labelledby="dropdownMenuItem1">
-        ${additionelBtns}
+    <div class="dropdown-menu p-2 flex-column btn-block ${theme === 'dark' ? 'dark-btnMenu' : ''}" aria-labelledby="dropdownMenuItem1">
+        ${obj['isCompleted'] === false ? `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
+        <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n` 
+        : ''} 
         <button type="button" class="btn btn-danger w-100 delete">Delete</button>
     </div>
   </div>`;
