@@ -20,7 +20,7 @@ let theme = localStorage.getItem('theme') || 'light';
 
 if (theme === 'dark') setTheme('dark');
 
-printAllElements(taskObjList);
+printAllElements();
 addTaskBtnListener();
 taskNumCounter();
 
@@ -32,29 +32,20 @@ form.addEventListener('submit', (e) => {
   let formData = new FormData(form);
   let date = new Date();
 
-  // ответвление для редактирования таска =================
   if (isEdit === true) {
 
-    editObj.title = formData.get('inputTitle');
-    editObj.text = formData.get('inputText');
-    editObj.color = formData.get('colors');
-    editObj.priority = formData.get('priority');
-
+    setDataFromForm(editObj, formData);
     printElement(editObj);
     toDoBlock.replaceChild(toDoBlock.lastChild, editTask);
 
   } else {
 
-    // создания нового таска ================================
     let taskObj = {
       "isCompleted": false,
-      "title": formData.get('inputTitle'),
-      "text": formData.get('inputText'),
-      "color": formData.get('colors') || "transparent",
-      "priority": formData.get('priority'),
       "time": date,
     }
 
+    setDataFromForm(taskObj, formData);
     printElement(taskObj);
     taskObjList.push(taskObj);
   }
@@ -63,6 +54,13 @@ form.addEventListener('submit', (e) => {
   taskNumCounter();
   $('#exampleModal').modal('hide');
 });
+
+function setDataFromForm(obj, formData) {
+  obj.title = formData.get('inputTitle');
+  obj.text = formData.get('inputText');
+  obj.color = isEdit ? formData.get('colors') : formData.get('colors') || "transparent";
+  obj.priority = formData.get('priority');
+}
 
 // ========================================================
 
@@ -102,8 +100,10 @@ function setTheme(clickedTheme) {
   if (theme === 'light') {
     body.style.setProperty('--main-bc', '#fff');
     body.style.setProperty('--main-color', 'black');
+    body.style.setProperty('--menu-bc', '#fff');
     body.style.setProperty('--secondary-bc', '#f8f9fa');
     body.style.setProperty('--modal-bc', '#fff');
+    body.style.setProperty('--modal-x', 'black');
     body.style.setProperty('--modal-field', '#fff');
 
     body.style.setProperty('--bc-red', 'rgb(255, 200, 200)');
@@ -116,8 +116,10 @@ function setTheme(clickedTheme) {
   } else {
     body.style.setProperty('--main-bc', '#111111');
     body.style.setProperty('--main-color', '#e5e5e5');
+    body.style.setProperty('--menu-bc', '#656565');
     body.style.setProperty('--secondary-bc', 'rgb(53, 53, 53)');
     body.style.setProperty('--modal-bc', 'rgb(53, 53, 53)');
+    body.style.setProperty('--modal-x', '#fff');
     body.style.setProperty('--modal-field', '#6c757d');
 
     body.style.setProperty('--bc-red', 'rgb(100, 50, 50)');
@@ -129,49 +131,6 @@ function setTheme(clickedTheme) {
     body.style.setProperty('--bc-transparent', 'rgb(53, 53, 53)');
   } 
 
-  
-  // oppositeTheme = (theme === 'light') ? 'dark' : 'light';
-
-  // // блок основного окна ==================================
-  // document.body.style.setProperty("--main-color", "#e5e5e5");
-  // document.body.style.setProperty("--main-bc", "#111111");
-
-  // document.body.classList.add(theme + '-main');
-  // document.body.classList.remove(oppositeTheme + '-main');
-
-  // container.classList.add(theme + '-main');
-  // container.classList.remove(oppositeTheme + '-main');
-
-  // navbar.classList.add(theme + '-nav');
-  // navbar.classList.remove(oppositeTheme + '-nav');
-
-  // let tasks = document.querySelectorAll('.task');
-  // tasks.forEach(task => taskColoring(task));
-
-  // let taskBtnsMenu = document.querySelectorAll('.dropdown-menu');
-  // taskBtnsMenu.forEach(menu => menu.classList.toggle('dark-btnMenu'));
-
-  // // блок модального окна ==================================
-  // let modalContent = document.querySelector('.modal-content');
-  // modalContent.classList.add(theme + '-modal');
-  // modalContent.classList.remove(oppositeTheme + '-modal');
-
-  // let textFields = document.querySelectorAll('.form-control');
-
-  // textFields.forEach(field => field.classList.toggle('dark-field'));
-
-  // let closeX = modalContent.querySelector('.closeX');
-  // closeX.classList.toggle('dark-x');
-
-  // let colorBtns = form.querySelectorAll('.color-label');
-  // colorBtns.forEach((btn) => {
-
-  //   let color = btn.getAttribute('for');
-
-  //   btn.classList.toggle(color);
-  //   btn.classList.toggle(`dark-${color}`);
-  // });
-
   saveThemeColor();
 }
 
@@ -179,23 +138,11 @@ function taskSorter(direction) {
 
   taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
 
-  printAllElements(taskObjList);
+  printAllElements();
   saveStorageElements();
 }
 
 //=========================================================
-
-// function taskColoring(task) {
-//   let color = task.getAttribute('data-color');
-
-//   if (theme === 'dark') {
-//     task.classList.add('dark-' + color);
-//     task.classList.remove(color);
-//   } else {
-//     task.classList.add(color);
-//     task.classList.remove('dark-' + color);
-//   }
-// }
 
 function changeInscriptionsInModalTo(value) {
 
@@ -299,7 +246,7 @@ function formReset() {
 
 //=========================================================
 
-function printAllElements(taskObjList) {
+function printAllElements() {
 
   toDoBlock.innerHTML = '';
   completedBlock.innerHTML = '';
@@ -310,6 +257,36 @@ function printAllElements(taskObjList) {
     printElement(taskObjList[i]);
   }
 }
+
+// function printSection(section) {
+
+//   let isDone = section === current ? false : true;
+
+//   taskObjList.innerHTML = toDoTasks.filter(task => task.isCompleted === isDone).map(elem => `
+//     <li class="list-group-item d-flex w-100 mb-2 ${obj.color}" data-time="${JSON.parse(JSON.stringify(obj.time))} data-color="${obj.color}">
+//       <div class="w-100 mr-2">
+//         <div class="d-flex w-100 justify-content-between">
+//           <h5 class="title mb-1">${obj.title}</h5>
+//           <div>
+//             <small class="priority mr-2">${obj.priority} priority</small>
+//             <small class="time">${dateString(new Date(obj.time))}</small>
+//           </div>
+//         </div>
+//         <p class="text mb-1 w-100">${obj.text}</p>
+//       </div>
+//       <div class="dropdown m-2 dropleft">
+//         <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+//           <i class="fas fa-ellipsis-v"></i>
+//         </button>
+//         <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+//           ${obj['isCompleted'] === false ? `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
+//           <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n` 
+//           : ''} 
+//           <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+//         </div>
+//       </div>  
+//     </li>`).join('');
+// }
 
 function printElement(obj) {
 
@@ -326,8 +303,6 @@ function printElement(obj) {
   newTask.setAttribute('data-time', JSON.parse(JSON.stringify(obj.time)));
   newTask.setAttribute('data-color', obj.color);
 
-  // taskColoring(newTask);
-
   newTask.innerHTML = `
   <div class="w-100 mr-2">
     <div class="d-flex w-100 justify-content-between">
@@ -343,7 +318,7 @@ function printElement(obj) {
     <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="fas fa-ellipsis-v"></i>
     </button>
-    <div class="dropdown-menu p-2 flex-column btn-block ${theme === 'dark' ? 'dark-btnMenu' : ''}" aria-labelledby="dropdownMenuItem1">
+    <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
         ${obj['isCompleted'] === false ? `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
         <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n` 
         : ''} 
