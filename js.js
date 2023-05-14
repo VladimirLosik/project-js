@@ -6,25 +6,29 @@ let form = document.querySelector('#form');
 let sortBtns = document.querySelector("#sortBtns");
 let addBtn = document.querySelector('#addBtn');
 let themeBtns = document.querySelector('#themeBtns');
+let mainBlock = document.querySelector('.main-block');
 
 let sortDirection;
-
-let taskObjList = localStorage.getItem('pageStorage') ? JSON.parse(localStorage.getItem('pageStorage')) : [];
 
 let isEdit;
 let editObj;
 let editTask;
 let editTaskColor;
 
-let theme = localStorage.getItem('theme') || 'light';
+let taskObjList = [];
+let theme;
 
-if (theme === 'dark') setTheme('dark');
-
-printAllElements();
-addTaskBtnListener();
+init();
 taskNumCounter();
 
 // ========================================================
+addBtn.addEventListener('click', () => {
+
+  isEdit = false;
+
+  formReset();
+  changeInscriptionsInModalTo('Add');
+})
 
 form.addEventListener('submit', (e) => {
   e.preventDefault(); 
@@ -35,7 +39,6 @@ form.addEventListener('submit', (e) => {
   if (isEdit === true) {
 
     setDataFromForm(editObj, formData);
-    printElement(editObj);
     toDoBlock.replaceChild(toDoBlock.lastChild, editTask);
 
   } else {
@@ -46,39 +49,21 @@ form.addEventListener('submit', (e) => {
     }
 
     setDataFromForm(taskObj, formData);
-    printElement(taskObj);
     taskObjList.push(taskObj);
   }
 
+  printSection('current');
   saveStorageElements();
   taskNumCounter();
   $('#exampleModal').modal('hide');
-});
-
-function setDataFromForm(obj, formData) {
-  obj.title = formData.get('inputTitle');
-  obj.text = formData.get('inputText');
-  obj.color = isEdit ? formData.get('colors') : formData.get('colors') || "transparent";
-  obj.priority = formData.get('priority');
-}
-
-// ========================================================
+})
 
 sortBtns.addEventListener('click', (e) => {
 
   let targetBtn = e.target.closest('button');
 
   if (!targetBtn) return;
-
   targetBtn.classList.contains('up-button') ? taskSorter('up') : taskSorter('down');
-})
-
-addBtn.addEventListener('click', () => {
-
-    isEdit = false;
-
-    formReset();
-    changeInscriptionsInModalTo('Add');
 })
 
 themeBtns.addEventListener('click', (e) => {
@@ -86,12 +71,33 @@ themeBtns.addEventListener('click', (e) => {
   let targetBtn = e.target.closest('button');
 
   if (!targetBtn) return;
-
   if (targetBtn.classList.contains('btn-light') && theme !== 'light') setTheme('light');
   if (targetBtn.classList.contains('btn-dark') && theme !== 'dark') setTheme('dark');
 })
 
-//=========================================================
+mainBlock.addEventListener('click', (e) => {
+  let target = e.target;
+  let task = target.closest(".task");
+
+  let targetObj = taskObjList.find(obj => JSON.parse(JSON.stringify(obj.time)) === task.getAttribute('data-time'));
+
+  if (target.classList.contains('complete')) {
+    taskCompleter(task, targetObj);
+  } else if (target.classList.contains('edit')) {
+    taskEditor(task, targetObj);
+  } else if (target.classList.contains('delete')) {
+    taskDeleter(task, targetObj);
+  }
+})
+
+// ========================================================
+function init() {
+  taskObjList= localStorage.getItem('pageStorage') ? JSON.parse(localStorage.getItem('pageStorage')) : [];
+  theme = localStorage.getItem('theme') || 'light';
+  if (theme === 'dark') setTheme('dark');
+
+  printAllSections();
+}
 
 function setTheme(clickedTheme) {
 
@@ -134,15 +140,80 @@ function setTheme(clickedTheme) {
   saveThemeColor();
 }
 
-function taskSorter(direction) {
+function printAllSections() {
 
-  taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
+  if (!taskObjList || !taskObjList.length) return;
 
-  printAllElements();
-  saveStorageElements();
+  printSection('current');
+  printSection('completed');
 }
 
-//=========================================================
+function printSection(section) {
+
+  let isDone = section === 'current' ? false : true;
+  let taskBlock = section === 'current' ? toDoBlock : completedBlock;
+
+  taskBlock.innerHTML = taskObjList.filter(task => task.isCompleted === isDone).map(task => `
+    <li class="task list-group-item d-flex w-100 mb-2 ${task.color}" data-time="${JSON.parse(JSON.stringify(task.time))}" data-color="${task.color}">
+      <div class="w-100 mr-2">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="title mb-1">${task.title}</h5>
+          <div>
+            <small class="priority mr-2">${task.priority} priority</small>
+            <small class="time">${dateString(new Date(task.time))}</small>
+          </div>
+        </div>
+        <p class="text mb-1 w-100">${task.text}</p>
+      </div>
+      <div class="dropdown m-2 dropleft">
+        <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
+          ${task['isCompleted'] === false ? `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
+          <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n` 
+          : ''} 
+          <button type="button" class="btn btn-danger w-100 delete">Delete</button>
+        </div>
+      </div>  
+    </li>`).join('');
+}
+
+function dateString(date) {
+  let str = '';
+
+  str = date.toLocaleTimeString().slice(0,-3) + ' ' + date.toLocaleDateString();
+
+  return str;
+}
+
+// ========================================================
+function taskNumCounter() {
+
+  if (taskObjList === undefined) return;
+
+  let toDoTasksAmount = taskObjList.filter(task => task.isCompleted === false).length;
+  let toDoTitle = document.querySelector('#toDoTitle');
+
+  toDoTitle.textContent = `ToDo (${toDoTasksAmount})`;
+
+  let compTasksAmount = taskObjList.length - toDoTasksAmount;
+  let completedTitle = document.querySelector('#completedTitle');
+
+  completedTitle.textContent = `Completed (${compTasksAmount})`;
+}
+
+// ========================================================
+function formReset() {
+
+  form.reset();
+
+  let formText = form.querySelectorAll('.form-control');
+  formText.forEach(elem => elem.removeAttribute('value'));
+
+  let formBtns = form.querySelectorAll('.switch');
+  formBtns.forEach(btn => btn.removeAttribute('checked'));
+}
 
 function changeInscriptionsInModalTo(value) {
 
@@ -154,25 +225,28 @@ function changeInscriptionsInModalTo(value) {
 
 }
 
-//=========================================================
+function setDataFromForm(obj, formData) {
+  obj.title = formData.get('inputTitle');
+  obj.text = formData.get('inputText');
+  obj.color = isEdit ? formData.get('colors') : formData.get('colors') || "transparent";
+  obj.priority = formData.get('priority');
+}
 
-function addTaskBtnListener() {
+function saveStorageElements() {
+  localStorage.setItem('pageStorage', JSON.stringify(taskObjList));
+}
 
-  let mainBlock = document.querySelector('.main-block');
-  mainBlock.addEventListener('click', (e) => {
-    let target = e.target;
-    let task = target.closest(".task");
+function saveThemeColor() {
+  localStorage.setItem('theme', theme);
+}
 
-    let targetObj = taskObjList.find(obj => JSON.parse(JSON.stringify(obj.time)) === task.getAttribute('data-time'));
+// ========================================================
+function taskSorter(direction) {
 
-    if (target.classList.contains('complete')) {
-      taskCompleter(task, targetObj);
-    } else if (target.classList.contains('edit')) {
-      taskEditor(task, targetObj);
-    } else if (target.classList.contains('delete')) {
-      taskDeleter(task, targetObj);
-    }
-  })
+  taskObjList.sort((a, b) => direction === 'up' ? new Date(b.time) - new Date(a.time) : new Date(a.time) - new Date(b.time));
+
+  printAllSections();
+  saveStorageElements();
 }
 
 function taskCompleter(task, targetObj) {
@@ -206,7 +280,6 @@ function taskEditor(task, targetObj) {
   changeInscriptionsInModalTo('Edit');
 }
 
-
 function taskDeleter(task, targetObj) {
 
   taskObjList = taskObjList.filter(obj => obj !== targetObj);
@@ -214,133 +287,4 @@ function taskDeleter(task, targetObj) {
   
   saveStorageElements();
   taskNumCounter();
-}
-
-//=========================================================
-
-function taskNumCounter() {
-
-  if (taskObjList === undefined) return;
-
-  let toDoTasksAmount = taskObjList.filter(task => task.isCompleted === false).length;
-  let toDoTitle = document.querySelector('#toDoTitle');
-
-  toDoTitle.textContent = `ToDo (${toDoTasksAmount})`;
-
-  let compTasksAmount = taskObjList.length - toDoTasksAmount;
-  let completedTitle = document.querySelector('#completedTitle');
-
-  completedTitle.textContent = `Completed (${compTasksAmount})`;
-}
-
-function formReset() {
-
-  form.reset();
-
-  let formText = form.querySelectorAll('.form-control');
-  formText.forEach(elem => elem.removeAttribute('value'));
-
-  let formBtns = form.querySelectorAll('.switch');
-  formBtns.forEach(btn => btn.removeAttribute('checked'));
-}
-
-//=========================================================
-
-function printAllElements() {
-
-  toDoBlock.innerHTML = '';
-  completedBlock.innerHTML = '';
-
-  if (!taskObjList || !taskObjList.length) return;
-
-  for (let i = 0; i < taskObjList.length; i++) {
-    printElement(taskObjList[i]);
-  }
-}
-
-// function printSection(section) {
-
-//   let isDone = section === current ? false : true;
-
-//   taskObjList.innerHTML = toDoTasks.filter(task => task.isCompleted === isDone).map(elem => `
-//     <li class="list-group-item d-flex w-100 mb-2 ${obj.color}" data-time="${JSON.parse(JSON.stringify(obj.time))} data-color="${obj.color}">
-//       <div class="w-100 mr-2">
-//         <div class="d-flex w-100 justify-content-between">
-//           <h5 class="title mb-1">${obj.title}</h5>
-//           <div>
-//             <small class="priority mr-2">${obj.priority} priority</small>
-//             <small class="time">${dateString(new Date(obj.time))}</small>
-//           </div>
-//         </div>
-//         <p class="text mb-1 w-100">${obj.text}</p>
-//       </div>
-//       <div class="dropdown m-2 dropleft">
-//         <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-//           <i class="fas fa-ellipsis-v"></i>
-//         </button>
-//         <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
-//           ${obj['isCompleted'] === false ? `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
-//           <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n` 
-//           : ''} 
-//           <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-//         </div>
-//       </div>  
-//     </li>`).join('');
-// }
-
-function printElement(obj) {
-
-  let newTask = document.createElement('li');
-
-  if (obj['isCompleted'] === false) {
-    toDoBlock.append(newTask);
-
-  } else if (obj['isCompleted'] === true) {
-    completedBlock.append(newTask);
-  }
-
-  newTask.classList.add('task', 'list-group-item', 'd-flex', 'w-100', 'mb-2', obj.color);
-  newTask.setAttribute('data-time', JSON.parse(JSON.stringify(obj.time)));
-  newTask.setAttribute('data-color', obj.color);
-
-  newTask.innerHTML = `
-  <div class="w-100 mr-2">
-    <div class="d-flex w-100 justify-content-between">
-        <h5 class="title mb-1">${obj.title}</h5>
-        <div>
-            <small class="priority mr-2">${obj.priority} priority</small>
-            <small class="time">${dateString(new Date(obj.time))}</small>
-        </div>
-    </div>
-    <p class="text mb-1 w-100">${obj.text}</p>
-  </div>
-  <div class="dropdown m-2 dropleft">
-    <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-ellipsis-v"></i>
-    </button>
-    <div class="dropdown-menu p-2 flex-column btn-block" aria-labelledby="dropdownMenuItem1">
-        ${obj['isCompleted'] === false ? `<button type="button" class="btn btn-success w-100 complete">Complete</button>\n
-        <button type="button" class="btn btn-info w-100 my-2 edit" data-toggle="modal" data-target="#exampleModal">Edit</button>\n` 
-        : ''} 
-        <button type="button" class="btn btn-danger w-100 delete">Delete</button>
-    </div>
-  </div>`;
-}
-
-function dateString(date) {
-  let str = '';
-
-  str = date.toLocaleTimeString().slice(0,-3) + ' ' + date.toLocaleDateString();
-
-  return str;
-}
-
-//=========================================================
-
-function saveStorageElements() {
-  localStorage.setItem('pageStorage', JSON.stringify(taskObjList));
-}
-
-function saveThemeColor() {
-  localStorage.setItem('theme', theme);
 }
