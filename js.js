@@ -1,19 +1,16 @@
 let body = document.querySelector('body');
-let navbar = document.querySelector('.navbar');
 let toDoBlock = document.querySelector('#currentTasks');
 let completedBlock = document.querySelector('#completedTasks');
 let form = document.querySelector('#form');
 let sortBtns = document.querySelector("#sortBtns");
 let addBtn = document.querySelector('#addBtn');
 let themeBtns = document.querySelector('#themeBtns');
-let mainBlock = document.querySelector('.main-block');
+let mainBlock = document.querySelector('#mainBlock');
 
 let sortDirection;
 
 let isEdit;
 let editObj;
-let editTask;
-let editTaskColor;
 
 let taskObjList = [];
 let theme;
@@ -39,8 +36,6 @@ form.addEventListener('submit', (e) => {
   if (isEdit === true) {
 
     setDataFromForm(editObj, formData);
-    toDoBlock.replaceChild(toDoBlock.lastChild, editTask);
-
   } else {
 
     let taskObj = {
@@ -63,7 +58,7 @@ sortBtns.addEventListener('click', (e) => {
   let targetBtn = e.target.closest('button');
 
   if (!targetBtn) return;
-  targetBtn.classList.contains('up-button') ? taskSorter('up') : taskSorter('down');
+  targetBtn.classList.contains('up') ? taskSorter('up') : taskSorter('down');
 })
 
 themeBtns.addEventListener('click', (e) => {
@@ -84,7 +79,7 @@ mainBlock.addEventListener('click', (e) => {
   if (target.classList.contains('complete')) {
     taskCompleter(task, targetObj);
   } else if (target.classList.contains('edit')) {
-    taskEditor(task, targetObj);
+    taskEditor(targetObj);
   } else if (target.classList.contains('delete')) {
     taskDeleter(task, targetObj);
   }
@@ -92,7 +87,7 @@ mainBlock.addEventListener('click', (e) => {
 
 // ========================================================
 function init() {
-  taskObjList= localStorage.getItem('pageStorage') ? JSON.parse(localStorage.getItem('pageStorage')) : [];
+  taskObjList = localStorage.getItem('pageStorage') ? JSON.parse(localStorage.getItem('pageStorage')) : [];
   theme = localStorage.getItem('theme') || 'light';
   if (theme === 'dark') setTheme('dark');
 
@@ -142,7 +137,7 @@ function setTheme(clickedTheme) {
 
 function printAllSections() {
 
-  if (!taskObjList || !taskObjList.length) return;
+  if (!taskObjList.length) return;
 
   printSection('current');
   printSection('completed');
@@ -260,9 +255,8 @@ function taskCompleter(task, targetObj) {
   taskNumCounter();
 }
 
-function taskEditor(task, targetObj) {
+function taskEditor(targetObj) {
 
-  editTask = task;
   editObj = targetObj;
 
   formReset();
@@ -272,8 +266,6 @@ function taskEditor(task, targetObj) {
 
   form.querySelector(`#${targetObj.color}`).setAttribute('checked','');
   form.querySelector(`#${targetObj.priority}`).setAttribute('checked','');
-
-  editTaskColor = targetObj.color;
 
   isEdit = true;
 

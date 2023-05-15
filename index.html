@@ -16,15 +16,15 @@
     <title>LogicPart</title>
 </head>
 <body>
-    <div id="container" class="container-fluid wrapper">
-        <nav id="navbar" class="navbar light-nav">
+    <div class="container-fluid wrapper" id="container">
+        <nav class="navbar" id="navbar">  
             <h1>MyToDoList</h1>
             <div class="d-flex" id="sortBtns">
-                <button type="button" class="up-button btn btn-primary mx-2"><i class="fas fa-sort-numeric-up-alt"></i></button>
-                <button type="button" class="down-button btn btn-primary"><i class="fas fa-sort-numeric-up"></i></button>
+                <button type="button" class="up btn btn-primary mx-2"><i class="fas fa-sort-numeric-up-alt"></i></button>
+                <button type="button" class="btn btn-primary"><i class="fas fa-sort-numeric-up"></i></button>
             </div>
             <div class="d-flex">
-                <button type="button" class="btn btn-primary addBtn" data-toggle="modal" data-target="#exampleModal" id="addBtn">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="addBtn">
                     <i class="fas fa-plus"></i>
                     Add task
                 </button>
@@ -33,14 +33,14 @@
                         <i class="fas fa-cog"></i>
                     </button>
                     <div class="dropdown-menu p-2 dropdown-menu-right" id="themeBtns" aria-labelledby="dropdownMenuSettings">
-                        <button type="button" class="btn btn-light w-100" id="light">Light theme</button>
-                        <button type="button" class="btn btn-dark w-100" id="dark">Dark theme</button>
+                        <button type="button" class="btn btn-light w-100">Light theme</button>
+                        <button type="button" class="btn btn-dark w-100">Dark theme</button>
                     </div>
                 </div>
             </div>
         </nav>
         <div class="row justify-content-center">
-            <div class="main-block col-10">
+            <div class="col-10" id="mainBlock">
                 <h3 class="my-2" id="toDoTitle">ToDo</h3>
                 <ul class="list-group flex-wrap justify-content-between" id="currentTasks">
                 </ul>
@@ -58,7 +58,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Add task</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true" class="closeX">&times;</span>
                     </button>
                 </div>
