@@ -97,40 +97,22 @@ function init() {
 function setTheme(clickedTheme) {
 
   theme = clickedTheme;
-  
-  if (theme === 'light') {
-    body.style.setProperty('--main-bc', '#fff');
-    body.style.setProperty('--main-color', 'black');
-    body.style.setProperty('--menu-bc', '#fff');
-    body.style.setProperty('--secondary-bc', '#f8f9fa');
-    body.style.setProperty('--modal-bc', '#fff');
-    body.style.setProperty('--modal-x', 'black');
-    body.style.setProperty('--modal-field', '#fff');
 
-    body.style.setProperty('--bc-red', 'rgb(255, 200, 200)');
-    body.style.setProperty('--bc-orange', 'rgb(255, 225, 150)');
-    body.style.setProperty('--bc-green', 'rgb(220, 255, 200)');
-    body.style.setProperty('--bc-turquoise', 'rgb(210, 255, 240)');
-    body.style.setProperty('--bc-blue', 'rgb(190, 230, 255)');
-    body.style.setProperty('--transparent', 'rgba(0,0,0,.125)');
-    body.style.setProperty('--bc-transparent', 'rgb(255, 255, 255)');
-  } else {
-    body.style.setProperty('--main-bc', '#111111');
-    body.style.setProperty('--main-color', '#e5e5e5');
-    body.style.setProperty('--menu-bc', '#656565');
-    body.style.setProperty('--secondary-bc', 'rgb(53, 53, 53)');
-    body.style.setProperty('--modal-bc', 'rgb(53, 53, 53)');
-    body.style.setProperty('--modal-x', '#fff');
-    body.style.setProperty('--modal-field', '#6c757d');
+  body.style.setProperty('--main-bc', `var(--main-bc-${theme})`);
+  body.style.setProperty('--main-color', `var(--main-color-${theme})`);
+  body.style.setProperty('--menu-bc', `var(--menu-bc-${theme})`);
+  body.style.setProperty('--secondary-bc', `var(--secondary-bc-${theme})`);
+  body.style.setProperty('--modal-bc', `var(--modal-bc-${theme})`);
+  body.style.setProperty('--modal-x', `var(--modal-x-${theme})`);
+  body.style.setProperty('--modal-field', `var(--modal-field-${theme})`);
 
-    body.style.setProperty('--bc-red', 'rgb(100, 50, 50)');
-    body.style.setProperty('--bc-orange', 'rgb(100, 70, 50)');
-    body.style.setProperty('--bc-green', 'rgb(50, 80, 50)');
-    body.style.setProperty('--bc-turquoise', 'rgb(50, 80, 75)');
-    body.style.setProperty('--bc-blue', 'rgb(35, 50, 100)');
-    body.style.setProperty('--transparent', '#6c757d');
-    body.style.setProperty('--bc-transparent', 'rgb(53, 53, 53)');
-  } 
+  body.style.setProperty('--bc-red', `var(--bc-red-${theme})`);
+  body.style.setProperty('--bc-orange', `var(--bc-orange-${theme})`);
+  body.style.setProperty('--bc-green', `var(--bc-green-${theme})`);
+  body.style.setProperty('--bc-turquoise', `var(--bc-turquoise-${theme})`);
+  body.style.setProperty('--bc-blue', `var(--bc-blue-${theme})`);
+  body.style.setProperty('--bc-transparent', `var(--bc-transparent-${theme})`);
+  body.style.setProperty('--transparent', `var(--transparent-${theme})`);
 
   saveThemeColor();
 }

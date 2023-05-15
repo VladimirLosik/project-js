@@ -1,26 +1,56 @@
 body {
-    --main-bc: #fff;
-    --main-color: black;
-    --menu-bc: #fff;
+    --main-bc: var(--main-bc-light);
+    --main-bc-light: #fff;
+    --main-bc-dark: #111111;
+    --main-color: var(--main-color-light);
+    --main-color-light: black;
+    --main-color-dark: #e5e5e5;
+    --menu-bc: var(--menu-bc-light);
+    --menu-bc-light: #fff;
+    --menu-bc-dark: #656565;
+    --secondary-bc: var(--secondary-bc-light);
+    --secondary-bc-light: #f8f9fa;
+    --secondary-bc-dark: rgb(53, 53, 53);
+    --modal-bc: var(--modal-bc-light);
+    --modal-bc-light: #fff;
+    --modal-bc-dark: rgb(53, 53, 53);
+    --modal-x: var(--modal-x-light);
+    --modal-x-light: black;
+    --modal-x-dark: #fff;
+    --modal-field: var(--modal-field-light);
+    --modal-field-light: #fff;
+    --modal-field-dark: #6c757d;
+    --bc-red: var(--bc-red-light);
+    --bc-red-light: rgb(255, 200, 200);
+    --bc-red-dark: rgb(100, 50, 50);
+    --bc-orange: var(--bc-orange-light);
+    --bc-orange-light: rgb(255, 225, 150);
+    --bc-orange-dark: rgb(100, 70, 50);
+    --bc-green: var(--bc-green-light);
+    --bc-green-light: rgb(220, 255, 200);
+    --bc-green-dark: rgb(50, 80, 50);
+    --bc-turquoise: var(--bc-turquoise-light);
+    --bc-turquoise-light: rgb(210, 255, 240);
+    --bc-turquoise-dark: rgb(50, 80, 75);
+    --bc-blue: var(--bc-blue-light);
+    --bc-blue-light: rgb(190, 230, 255);
+    --bc-blue-dark: rgb(35, 50, 100);
+    --bc-transparent: var(--bc-transparent-light);
+    --bc-transparent-light: rgb(255, 255, 255);
+    --bc-transparent-dark: rgb(53, 53, 53);
+    --transparent: var(--transparent-light);
+    --transparent-light: rgba(0,0,0,.125);
+    --transparent-dark: #6c757d;
 
-    --secondary-bc: #f8f9fa;
-    --modal-bc: #fff;
-    --modal-x: black;
-    --modal-field: #fff;
-
-    --bc-red: rgb(255, 200, 200);
-    --bc-orange: rgb(255, 225, 150);
     --bc-green: rgb(220, 255, 200);
     --bc-turquoise: rgb(210, 255, 240);
     --bc-blue: rgb(190, 230, 255);
     --bc-transparent: rgb(255, 255, 255);
-
     --red: #dd3243;
     --orange: #ffc201;
     --green: #23a843;
     --turquoise: #0fa3b9;
     --blue: #007cff;
-    --transparent: rgba(0,0,0,.125);
 
     background-color: var(--main-bc)!important; 
 }
