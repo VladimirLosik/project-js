@@ -31,7 +31,6 @@ form.addEventListener('submit', (e) => {
   e.preventDefault(); 
 
   let formData = new FormData(form);
-  let date = new Date();
 
   if (isEdit === true) {
 
@@ -40,7 +39,7 @@ form.addEventListener('submit', (e) => {
 
     let taskObj = {
       "isCompleted": false,
-      "time": date,
+      "time": new Date().getTime(),
     }
 
     setDataFromForm(taskObj, formData);
@@ -74,7 +73,7 @@ mainBlock.addEventListener('click', (e) => {
   let target = e.target;
   let task = target.closest(".task");
 
-  let targetObj = taskObjList.find(obj => JSON.parse(JSON.stringify(obj.time)) === task.getAttribute('data-time'));
+  let targetObj = taskObjList.find(obj => obj.time === +task.getAttribute('data-time'));
 
   if (target.classList.contains('complete')) {
     taskCompleter(task, targetObj);
@@ -131,13 +130,13 @@ function printSection(section) {
   let taskBlock = section === 'current' ? toDoBlock : completedBlock;
 
   taskBlock.innerHTML = taskObjList.filter(task => task.isCompleted === isDone).map(task => `
-    <li class="task list-group-item d-flex w-100 mb-2 ${task.color}" data-time="${JSON.parse(JSON.stringify(task.time))}" data-color="${task.color}">
+    <li class="task list-group-item d-flex w-100 mb-2 ${task.color}" data-time="${task.time}" data-color="${task.color}">
       <div class="w-100 mr-2">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="title mb-1">${task.title}</h5>
           <div>
             <small class="priority mr-2">${task.priority} priority</small>
-            <small class="time">${dateString(new Date(task.time))}</small>
+            <small class="time">${dateString(task.time)}</small>
           </div>
         </div>
         <p class="text mb-1 w-100">${task.text}</p>
@@ -157,11 +156,7 @@ function printSection(section) {
 }
 
 function dateString(date) {
-  let str = '';
-
-  str = date.toLocaleTimeString().slice(0,-3) + ' ' + date.toLocaleDateString();
-
-  return str;
+  return new Date(date).toLocaleTimeString().slice(0,-3) + " " + new Date(date).toLocaleDateString()
 }
 
 // ========================================================
@@ -170,14 +165,14 @@ function taskNumCounter() {
   if (taskObjList === undefined) return;
 
   let toDoTasksAmount = taskObjList.filter(task => task.isCompleted === false).length;
-  let toDoTitle = document.querySelector('#toDoTitle');
+  let toDoTitleCounter = document.querySelector('#toDoTitleCounter');
 
-  toDoTitle.textContent = `ToDo (${toDoTasksAmount})`;
+  toDoTitleCounter.textContent = `(${toDoTasksAmount})`;
 
   let compTasksAmount = taskObjList.length - toDoTasksAmount;
-  let completedTitle = document.querySelector('#completedTitle');
+  let completedTitleCounter = document.querySelector('#completedTitleCounter');
 
-  completedTitle.textContent = `Completed (${compTasksAmount})`;
+  completedTitleCounter.textContent = `(${compTasksAmount})`;
 }
 
 // ========================================================
