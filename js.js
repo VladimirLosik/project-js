@@ -96,22 +96,7 @@ function init() {
 function setTheme(clickedTheme) {
 
   theme = clickedTheme;
-
-  body.style.setProperty('--main-bc', `var(--main-bc-${theme})`);
-  body.style.setProperty('--main-color', `var(--main-color-${theme})`);
-  body.style.setProperty('--menu-bc', `var(--menu-bc-${theme})`);
-  body.style.setProperty('--secondary-bc', `var(--secondary-bc-${theme})`);
-  body.style.setProperty('--modal-bc', `var(--modal-bc-${theme})`);
-  body.style.setProperty('--modal-x', `var(--modal-x-${theme})`);
-  body.style.setProperty('--modal-field', `var(--modal-field-${theme})`);
-
-  body.style.setProperty('--bc-red', `var(--bc-red-${theme})`);
-  body.style.setProperty('--bc-orange', `var(--bc-orange-${theme})`);
-  body.style.setProperty('--bc-green', `var(--bc-green-${theme})`);
-  body.style.setProperty('--bc-turquoise', `var(--bc-turquoise-${theme})`);
-  body.style.setProperty('--bc-blue', `var(--bc-blue-${theme})`);
-  body.style.setProperty('--bc-transparent', `var(--bc-transparent-${theme})`);
-  body.style.setProperty('--transparent', `var(--transparent-${theme})`);
+  body.classList.toggle(`body-dark`);
 
   saveThemeColor();
 }
